@@ -59,7 +59,7 @@ fi
 
 if [ -z "$MODEL" ]; then
   echo -e "${RED}❌ Could not detect model!${NC}"
-  echo -e "Set LLM_MODEL in $ENV_FILE"
+  echo -e "Run: hermes model"
   exit 1
 fi
 
