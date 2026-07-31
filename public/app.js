@@ -592,8 +592,10 @@ function renderAttachmentPreview() {
   if (!pendingAttachments.length) { preview.classList.add('hidden'); return; }
   preview.classList.remove('hidden');
   preview.innerHTML = pendingAttachments.map((f, i) => {
-    const thumb = f.isImage ? `<img src="${f.path}" alt="${f.name}">` : `<span>📄</span>`;
-    return `<div class="att-item">${thumb}<span>${f.name}</span><button class="att-remove" onclick="removeAttachment(${i})">✕</button></div>`;
+    if (f.isImage) {
+      return `<div class="att-thumb"><img src="${f.path}"><button class="att-remove" onclick="removeAttachment(${i})">✕</button></div>`;
+    }
+    return `<div class="att-thumb att-file"><span>📄</span><span class="att-fname">${f.name}</span><button class="att-remove" onclick="removeAttachment(${i})">✕</button></div>`;
   }).join('');
 }
 
