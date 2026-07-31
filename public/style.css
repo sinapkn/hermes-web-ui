@@ -643,6 +643,19 @@ body {
   white-space: pre-wrap;
 }
 
+/* Streaming cursor */
+.message-body.streaming::after {
+  content: '▌';
+  animation: blink 0.7s infinite;
+  color: #7c3aed;
+  font-weight: 100;
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0; }
+}
+
 .message-body {
   font-size: 16px;
   line-height: 1.7;
@@ -834,11 +847,12 @@ body {
   display: flex;
   align-items: center;
   gap: 8px;
-  padding: 0 16px 16px;
+  padding: 12px 16px 16px;
   max-width: 768px;
   margin: 0 auto;
   font-size: 14px;
   color: var(--text-muted);
+  animation: fadeIn 0.15s;
 }
 
 .typing-dots {
@@ -849,15 +863,24 @@ body {
 .typing-dots span {
   width: 6px;
   height: 6px;
-  background: var(--text-muted);
+  background: #7c3aed;
   border-radius: 50%;
-  animation: typing 1.4s infinite;
+  animation: typingBounce 1.4s infinite ease-in-out;
 }
 
+.typing-dots span:nth-child(1) { animation-delay: 0s; }
 .typing-dots span:nth-child(2) { animation-delay: 0.2s; }
 .typing-dots span:nth-child(3) { animation-delay: 0.4s; }
 
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
+
 @keyframes typing {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
   0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
   30% { transform: translateY(-4px); opacity: 1; }
 }

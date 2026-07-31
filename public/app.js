@@ -589,6 +589,10 @@ async function sendMessage() {
 
           if (event.type === 'status') {
             typingIndicator.classList.remove('hidden');
+            const statusText = typingIndicator.querySelector('span:last-child');
+            if (statusText && event.content) {
+              statusText.textContent = event.content;
+            }
           }
 
           if (event.type === 'chunk') {
@@ -599,6 +603,8 @@ async function sendMessage() {
             assistantText += event.content;
             updateStreamingMessage(assistantEl, assistantText);
             scrollToBottom();
+            // Typing delay — wait before rendering next word
+            await new Promise(r => setTimeout(r, 20));
           }
 
           if (event.type === 'done' || event.type === 'error') {
@@ -639,7 +645,7 @@ function appendStreamingMessage() {
         <span class="message-sender">Hermes</span>
         <span class="message-time">${time}</span>
       </div>
-      <div class="message-body"></div>
+      <div class="message-body streaming"></div>
     </div>`;
   messagesList.insertAdjacentHTML('beforeend', html);
   return document.getElementById(id);
@@ -647,15 +653,23 @@ function appendStreamingMessage() {
 
 function updateStreamingMessage(el, text) {
   if (!el) return;
-  el.querySelector('.message-body').innerHTML = formatContent(text);
+  // During streaming: just show raw text (fast, no markdown parsing)
+  el.querySelector('.message-body').textContent = text;
 }
 
 function finalizeStreamingMessage(el, msgData) {
   if (!el) return;
   el.removeAttribute('id');
+  el.querySelector('.message-body').classList.remove('streaming');
   if (msgData && msgData.id) el.dataset.id = msgData.id;
 
-  // Add copy buttons to any code blocks in the final message
+  // Now parse markdown for the final version
+  const body = el.querySelector('.message-body');
+  if (msgData && msgData.content) {
+    body.innerHTML = formatContent(msgData.content);
+  }
+
+  // Add copy buttons to any code blocks
   el.querySelectorAll('pre').forEach(addCopyButtonToCodeBlock);
 }
 

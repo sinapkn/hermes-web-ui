@@ -14,50 +14,17 @@ app.use(express.static(path.join(__dirname, 'public')));
 function detectHermesConfig() {
   const hermesDir = process.env.HERMES_DIR || '/data/.hermes';
   const envFile = path.join(hermesDir, '.env');
-  const configFile = path.join(hermesDir, 'config.yaml');
-  const config = { model: null, provider: null, hermesDir };
+  const config = { model: 'sina', provider: 'auto', hermesDir };
 
-  // 1) Read from .env
   try {
     const env = fs.readFileSync(envFile, 'utf-8');
     const g = n => { const m = env.match(new RegExp('^' + n + '=(.*)$', 'mi')); return m ? m[1].trim().replace(/^["']|["']$/g, '') : ''; };
-    config.model = g('LLM_MODEL') || g('MODEL');
-    config.provider = g('CUSTOM_PROVIDER_NAME') || g('PROVIDER');
+
+    config.model = g('LLM_MODEL') || g('MODEL') || 'sina';
+    config.provider = g('CUSTOM_PROVIDER_NAME') || g('PROVIDER') || 'auto';
     config.baseUrl = g('CUSTOM_PROVIDER_BASE_URL') || g('HERMES_BASE_URL') || '';
     config.apiKey = g('CUSTOM_PROVIDER_API_KEY') || g('HERMES_API_KEY') || '';
   } catch {}
-
-  // 2) Read from config.yaml if model not found
-  if (!config.model || !config.provider) {
-    try {
-      const yaml = fs.readFileSync(configFile, 'utf-8');
-      if (!config.provider) {
-        const pm = yaml.match(/^\s*provider:\s*(.+)$/m);
-        if (pm) config.provider = pm[1].trim().replace(/^["']|["']$/g, '');
-      }
-    } catch {}
-  }
-
-  // 3) Use hermes status as last resort
-  if (!config.model || !config.provider) {
-    try {
-      const status = require('child_process').execSync('hermes status 2>&1', { timeout: 10000, encoding: 'utf-8' });
-      if (!config.model) {
-        const mm = status.match(/Model:\s+(.+)$/m);
-        if (mm) config.model = mm[1].trim();
-      }
-      if (!config.provider) {
-        const mp = status.match(/Provider:\s+(.+)$/m);
-        if (mp) config.provider = mp[1].trim();
-      }
-    } catch {}
-  }
-
-  if (!config.model) {
-    console.error('❌ Could not detect model! Run `hermes model` to set one.');
-    process.exit(1);
-  }
-  if (!config.provider) config.provider = 'auto';
 
   console.log(`[CONFIG] Model: ${config.model} | Provider: ${config.provider} | Dir: ${config.hermesDir}`);
   return config;
@@ -184,10 +151,10 @@ app.post('/api/chat', async (req, res) => {
   res.setHeader('Connection', 'keep-alive');
   res.setHeader('X-Accel-Buffering', 'no');
   res.flushHeaders();
+  // Disable Nagle's algorithm for immediate delivery
+  if (res.socket) res.socket.setNoDelay(true);
 
   try {
-    res.write(`data: ${JSON.stringify({ type: 'status', content: 'شروع شد...' })}\n\n`);
-
     const result = await callHermes(message, sessionId, (progress) => {
       res.write(`data: ${JSON.stringify({ type: 'status', content: progress })}\n\n`);
     });
@@ -198,11 +165,12 @@ app.post('/api/chat', async (req, res) => {
       .replace(/\r\n/g, '\n')
       .trim();
 
-    // Stream response line by line
+    // Stream response word by word
     if (cleaned) {
-      for (const line of cleaned.split('\n')) {
-        if (line.trim()) {
-          res.write(`data: ${JSON.stringify({ type: 'chunk', content: line + '\n' })}\n\n`);
+      const words = cleaned.split(/(\s+)/);
+      for (const word of words) {
+        if (word) {
+          res.write(`data: ${JSON.stringify({ type: 'chunk', content: word })}\n\n`);
         }
       }
     }
