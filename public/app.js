@@ -631,7 +631,7 @@ function renderAttachmentPreview() {
     if (f.isImage) {
       return `<div class="att-thumb"><img src="${f.path}"><button class="att-remove" onclick="removeAttachment(${i})">✕</button></div>`;
     }
-    return `<div class="att-thumb att-file"><span>📄</span><span class="att-fname">${f.name}</span><button class="att-remove" onclick="removeAttachment(${i})">✕</button></div>`;
+    return `<div class="att-thumb att-file"><span>📄</span><button class="att-remove" onclick="removeAttachment(${i})">✕</button></div>`;
   }).join('');
 }
 
