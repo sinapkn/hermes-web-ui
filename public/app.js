@@ -615,7 +615,7 @@ async function sendMessage() {
   messagesContainer.classList.remove('hidden');
 
   // Add user message immediately
-  appendMessage({ role: 'user', content, created_at: new Date().toISOString() });
+  appendMessage({ role: 'user', content, created_at: new Date().toISOString(), attachments });
 
   isStreaming = true;
   typingIndicator.classList.remove('hidden');
