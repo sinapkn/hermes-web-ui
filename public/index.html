@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202123">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ChatGPT">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <title>ChatGPT</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <button id="newChatBtn" class="btn-new-chat" title="چت جدید">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/>
+          </svg>
+          <span>چت جدید</span>
+        </button>
+      </div>
+
+      <div class="sidebar-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search..." autocomplete="off">
+        <button id="searchCloseBtn" class="search-close hidden" onclick="clearSearch()">✕</button>
+      </div>
+
+      <!-- Search Results -->
+      <div id="searchResults" class="search-results hidden"></div>
+
+      <!-- Session List -->
+      <div id="sessionList" class="session-list">
+        <div class="loading-state">Loading...</div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="memoryBtn" class="btn-sidebar-footer" title="Memory">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+            <path d="M20.66 8A10 10 0 0 0 14 2.05V8h6.66z"/>
+          </svg>
+          <span>Memory</span>
+        </button>
+        <button id="healthBtn" class="btn-sidebar-footer" title="Status">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+          <span>Status</span>
+        </button>
+        <button id="deleteSessionBtn" class="btn-sidebar-footer btn-danger" title="Delete chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span>Delete</span>
+        </button>
+        <button id="exportBtn" class="btn-sidebar-footer" title="Export">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Export</span>
+        </button>
+        <button id="deleteAllBtn" class="btn-sidebar-footer btn-danger" onclick="deleteAllSessions()" title="Delete all chats">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+          </svg>
+          <span>Delete all</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main id="mainContent" class="main-content">
+      <!-- Top bar -->
+      <div class="topbar">
+        <button id="menuToggle" class="btn-menu" title="Toggle sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-title" id="topbarTitle">ChatGPT</div>
+      </div>
+
+      <!-- Welcome screen -->
+      <div id="welcomeScreen" class="welcome-screen">
+        <div class="welcome-logo">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+            <path d="M8 12h8M12 8v8"/>
+          </svg>
+        </div>
+        <h1>Sina AI</h1>
+        <p class="welcome-subtitle">چطور می‌تونم کمکت کنم؟</p>
+        <div class="welcome-suggestions">
+          <button class="suggestion-chip" onclick="sendSuggestion('یه برنامه سفر آخر هفته بنویس')">
+            <span class="chip-icon">✈️</span>
+            <span>برنامه سفر آخر هفته</span>
+          </button>
+          <button class="suggestion-chip" onclick="sendSuggestion('کمکم کن یه ایمیل به تیمم بنویسم')">
+            <span class="chip-icon">✉️</span>
+            <span>نوشتن ایمیل به تیم</span>
+          </button>
+          <button class="suggestion-chip" onclick="sendSuggestion('محاسبات کوانتومی رو ساده توضیح بده')">
+            <span class="chip-icon">💡</span>
+            <span>توضیح محاسبات کوانتومی</span>
+          </button>
+          <button class="suggestion-chip" onclick="sendSuggestion('یه داستان کوتاه درباره ربات بنویس')">
+            <span class="chip-icon">✍️</span>
+            <span>داستان کوتاه درباره ربات</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages area -->
+      <div id="messagesContainer" class="messages-container hidden">
+        <div id="messagesList" class="messages-list"></div>
+        <div id="typingIndicator" class="typing-indicator hidden">
+          <div class="typing-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span>در حال فکر کردن...</span>
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="input-area">
+        <div class="input-wrapper">
+          <textarea id="messageInput" placeholder="پیامتو بنویس..." rows="1" autofocus></textarea>
+          <button id="sendBtn" class="btn-send" disabled aria-label="ارسال">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="input-footer">
+          <span> هوش مصنوعی ممکنه اشتباه کنه. اطلاعات مهم رو بررسی کن.</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
