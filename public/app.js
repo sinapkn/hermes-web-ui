@@ -50,6 +50,28 @@ function setupEventListeners() {
 
   // Input state
   messageInput.addEventListener('input', () => {
+    sendBtn.disabled = !messageInput.value.trim() && !pendingAttachments.length;
+  });
+
+  // File upload
+  const fileInput = $('#fileInput');
+  const uploadBtn = $('#uploadBtn');
+  if (uploadBtn) uploadBtn.addEventListener('click', () => fileInput.click());
+  if (fileInput) fileInput.addEventListener('change', handleFileUpload);
+
+  // Drag & drop
+  document.addEventListener('dragover', (e) => { e.preventDefault(); });
+  document.addEventListener('drop', (e) => {
+    e.preventDefault();
+    if (e.dataTransfer.files.length) {
+      const fi = $('#fileInput');
+      fi.files = e.dataTransfer.files;
+      handleFileUpload();
+    }
+  });
+
+  // Input state
+  messageInput.addEventListener('input', () => {
     sendBtn.disabled = !messageInput.value.trim();
   });
 
@@ -513,9 +535,17 @@ function createMessageHtml(m) {
   const content = formatContent(m.content);
   const msgId = m.id || '';
 
+  // Show attached images
+  let attachHtml = '';
+  if (m.attachments && m.attachments.length) {
+    const imgs = m.attachments.filter(a => a.isImage).map(a => `<img src="${a.path}" alt="${a.name}">`).join('');
+    if (imgs) attachHtml = `<div class="att-images">${imgs}</div>`;
+  }
+
   return `
     <div class="message ${m.role}" data-id="${msgId}">
       <div class="message-content">
+        ${attachHtml}
         ${isUser ? `<div class="message-user-text">${escapeHtml(m.content)}</div>` : `<div class="message-body">${content}</div>`}
       </div>
       <button class="msg-delete-btn" onclick="deleteMessage('${msgId}')" title="حذف">
@@ -540,9 +570,42 @@ async function deleteMessage(msgId) {
 }
 
 // ─── Chat (SSE Streaming) ─────────────────────────────────────────────
+let pendingAttachments = [];
+
+async function handleFileUpload() {
+  const fileInput = $('#fileInput');
+  if (!fileInput.files.length) return;
+  const formData = new FormData();
+  for (const file of fileInput.files) formData.append('files', file);
+  try {
+    const resp = await fetch('/api/upload', { method: 'POST', body: formData });
+    const files = await resp.json();
+    pendingAttachments.push(...files);
+    renderAttachmentPreview();
+    sendBtn.disabled = !messageInput.value.trim() && !pendingAttachments.length;
+  } catch (err) { console.error('Upload failed:', err); }
+  fileInput.value = '';
+}
+
+function renderAttachmentPreview() {
+  const preview = $('#attachmentPreview');
+  if (!pendingAttachments.length) { preview.classList.add('hidden'); return; }
+  preview.classList.remove('hidden');
+  preview.innerHTML = pendingAttachments.map((f, i) => {
+    const thumb = f.isImage ? `<img src="${f.path}" alt="${f.name}">` : `<span>📄</span>`;
+    return `<div class="att-item">${thumb}<span>${f.name}</span><button class="att-remove" onclick="removeAttachment(${i})">✕</button></div>`;
+  }).join('');
+}
+
+function removeAttachment(i) { pendingAttachments.splice(i, 1); renderAttachmentPreview(); sendBtn.disabled = !messageInput.value.trim() && !pendingAttachments.length; }
+window.removeAttachment = removeAttachment;
 async function sendMessage() {
   const content = messageInput.value.trim();
   if (!content || isStreaming) return;
+
+  const attachments = [...pendingAttachments];
+  pendingAttachments = [];
+  renderAttachmentPreview();
 
   messageInput.value = '';
   messageInput.style.height = 'auto';
@@ -562,7 +625,7 @@ async function sendMessage() {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: content, sessionId: currentSessionId })
+      body: JSON.stringify({ message: content, sessionId: currentSessionId, attachments })
     });
 
     const reader = response.body.getReader();
@@ -801,6 +864,11 @@ function formatContent(content) {
 
   // Links: [text](url)
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
+
+  // Images: ![alt](url)
+  html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:12px;margin:8px 0">');
+  // Auto-link /uploads/ image refs
+  html = html.replace(/(\/uploads\/[^\s"']+\.(?:png|jpg|jpeg|gif|webp|svg))/gi, '<img src="$1" style="max-width:300px;border-radius:12px;margin:8px 0">');
 
   // Headers: ### text, ## text, # text
   html = html.replace(/^### (.+)$/gm, '<h4>$1</h4>');

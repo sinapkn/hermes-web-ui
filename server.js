@@ -1,12 +1,57 @@
 const express = require('express');
 const path = require('path');
 const fs = require('fs');
+const multer = require('multer');
+const { v4: uuidv4 } = require('uuid');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-app.use(express.json({ limit: '10mb' }));
+app.use(express.json({ limit: '50mb' }));
 app.use(express.static(path.join(__dirname, 'public')));
+
+// ─── File Upload ──────────────────────────────────────────────────
+const UPLOAD_DIR = path.join(__dirname, 'uploads');
+fs.mkdirSync(UPLOAD_DIR, { recursive: true });
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => cb(null, UPLOAD_DIR),
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.bin';
+    cb(null, `${Date.now()}-${uuidv4().slice(0,8)}${ext}`);
+  }
+});
+
+const upload = multer({
+  storage,
+  limits: { fileSize: 50 * 1024 * 1024 }, // 50MB
+  fileFilter: (req, file, cb) => {
+    // Allow images, documents, code files
+    const allowed = /\.(jpg|jpeg|png|gif|webp|svg|pdf|txt|json|md|py|js|ts|html|css|yaml|yml|sh|csv|xml|zip|tar|gz)$/i;
+    if (allowed.test(path.extname(file.originalname)) || file.mimetype.startsWith('image/')) {
+      cb(null, true);
+    } else {
+      cb(null, true); // allow all for now
+    }
+  }
+});
+
+app.post('/api/upload', upload.array('files', 10), (req, res) => {
+  if (!req.files || !req.files.length) return res.status(400).json({ error: 'No files' });
+
+  const results = req.files.map(f => ({
+    id: f.filename,
+    name: f.originalname,
+    path: `/uploads/${f.filename}`,
+    size: f.size,
+    mime: f.mimetype,
+    isImage: f.mimetype.startsWith('image/'),
+  }));
+
+  res.json(results);
+});
+
+app.use('/uploads', express.static(UPLOAD_DIR));
 
 // ─── Load config ──────────────────────────────────────────────────
 function loadConfig() {
@@ -232,8 +277,17 @@ app.get('/api/health', (req, res) => {
 
 // ─── Chat ─────────────────────────────────────────────────────────
 app.post('/api/chat', async (req, res) => {
-  const { message, sessionId } = req.body;
+  const { message, sessionId, attachments } = req.body;
   if (!message) return res.status(400).json({ error: 'message required' });
+
+  // Build message with file references
+  let fullMessage = message;
+  if (attachments && attachments.length) {
+    const fileRefs = attachments.map(f =>
+      f.isImage ? `[عکس: ${f.name}](${f.path})` : `[فایل: ${f.name}](${f.path})`
+    ).join('\n');
+    fullMessage = `${message}\n\nفایل‌های ضمیمه:\n${fileRefs}`;
+  }
 
   res.setHeader('Content-Type', 'text/event-stream');
   res.setHeader('Cache-Control', 'no-cache');
@@ -244,9 +298,9 @@ app.post('/api/chat', async (req, res) => {
   try {
     let result;
     if (CONFIG.hermesMode) {
-      result = await callHermesCLI(message, sessionId);
+      result = await callHermesCLI(fullMessage, sessionId);
     } else {
-      result = await callDirectAPI(message);
+      result = await callDirectAPI(fullMessage);
       // Manage local session
       const sid = sessionId || `local_${Date.now()}`;
       if (!localSessions[sid]) {
