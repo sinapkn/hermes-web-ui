@@ -944,6 +944,7 @@ body {
 .attachment-preview {
   display: flex; gap: 8px; padding: 8px 16px;
   overflow-x: auto; scrollbar-width: none;
+  justify-content: center; align-items: center;
 }
 .attachment-preview::-webkit-scrollbar { display: none; }
 
