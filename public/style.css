@@ -113,44 +113,48 @@ body {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 8px 8px 12px;
+  padding: 12px;
   height: 56px;
+  gap: 8px;
 }
 
-.logo-area {
+.sidebar-brand {
   display: flex;
   align-items: center;
-  gap: 0;
+  gap: 8px;
+  flex: 1;
+  min-width: 0;
 }
 
-.logo-icon {
-  display: none;
+.brand-icon {
+  width: 32px; height: 32px;
+  background: linear-gradient(135deg, #7c3aed, #a78bfa);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 16px; color: white; flex-shrink: 0;
 }
 
-.logo-text {
+.brand-text {
   font-size: 16px;
   font-weight: 600;
   color: var(--text-primary);
-  background: none;
-  -webkit-text-fill-color: initial;
 }
 
 .btn-new-chat {
-  width: 40px;
-  height: 40px;
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
+  width: 36px; height: 36px;
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
   background: transparent;
   color: var(--text-primary);
   cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background var(--transition);
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
 }
 
 .btn-new-chat:hover {
   background: var(--bg-hover);
+  border-color: var(--text-muted);
 }
 
 /* Search */
