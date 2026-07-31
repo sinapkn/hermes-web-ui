@@ -550,11 +550,18 @@ function createMessageHtml(m) {
   const content = formatContent(m.content);
   const msgId = m.id || '';
 
-  // Show attached images
+  // Show attached files
   let attachHtml = '';
   if (m.attachments && m.attachments.length) {
     const imgs = m.attachments.filter(a => a.isImage).map(a => `<img src="${a.path}" alt="${a.name}">`).join('');
-    if (imgs) attachHtml = `<div class="att-images">${imgs}</div>`;
+    const files = m.attachments.filter(a => !a.isImage).map(a => {
+      const ext = (a.name.split('.').pop() || '').toUpperCase();
+      return `<a href="${a.path}" target="_blank" class="att-file-card"><span class="att-file-icon">📄</span><div class="att-file-info"><span class="att-file-name">${a.name}</span><span class="att-file-ext">${ext}</span></div></a>`;
+    }).join('');
+    let parts = '';
+    if (imgs) parts += `<div class="att-images">${imgs}</div>`;
+    if (files) parts += `<div class="att-files">${files}</div>`;
+    attachHtml = parts;
   }
 
   return `

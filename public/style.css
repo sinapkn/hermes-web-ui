@@ -1010,6 +1010,20 @@ body {
 }
 .att-images img:hover { transform: scale(1.02); }
 
+/* File cards in chat */
+.att-files { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 8px; }
+.att-file-card {
+  display: flex; align-items: center; gap: 10px;
+  background: var(--bg-surface); border: 1px solid var(--border-color);
+  border-radius: 10px; padding: 10px 14px; text-decoration: none;
+  color: var(--text-primary); transition: background 0.15s;
+}
+.att-file-card:hover { background: var(--bg-hover); }
+.att-file-icon { font-size: 24px; }
+.att-file-info { display: flex; flex-direction: column; gap: 2px; }
+.att-file-name { font-size: 13px; font-weight: 500; max-width: 200px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.att-file-ext { font-size: 11px; color: var(--text-muted); text-transform: uppercase; }
+
 .message-body img {
   max-width: 100%; border-radius: 12px; margin: 8px 0;
 }
