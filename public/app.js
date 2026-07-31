@@ -367,13 +367,13 @@ function filterSessions() {
 }
 
 async function createNewSession() {
-  const session = await api('/api/sessions', {
-    method: 'POST',
-    body: JSON.stringify({ title: 'New chat' })
-  });
-  sessions.unshift(session);
+  currentSessionId = null;
+  messagesList.innerHTML = '';
+  messagesContainer.classList.add('hidden');
+  welcomeScreen.classList.remove('hidden');
+  topbarTitle.textContent = 'Sina AI';
+  isStreaming = false;
   renderSessionList();
-  openSession(session.id);
   if (window.innerWidth <= 768) toggleSidebar();
 }
 
