@@ -8,7 +8,6 @@ const app = express();
 const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '50mb' }));
-app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── File Upload ──────────────────────────────────────────────────
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
@@ -339,6 +338,9 @@ app.post('/api/chat', async (req, res) => {
     res.end();
   }
 });
+
+// ─── Static files ──────────────────────────────────────────────────
+app.use(express.static(path.join(__dirname, 'public')));
 
 // ─── SPA fallback ─────────────────────────────────────────────────
 app.use((req, res) => res.sendFile(path.join(__dirname, 'public', 'index.html')));
