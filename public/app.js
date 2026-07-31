@@ -53,18 +53,33 @@ function setupEventListeners() {
     sendBtn.disabled = !messageInput.value.trim() && !pendingAttachments.length;
   });
 
-  // File upload
-  const fileInput = $('#fileInput');
+  // File upload menu
   const uploadBtn = $('#uploadBtn');
-  if (uploadBtn) uploadBtn.addEventListener('click', () => fileInput.click());
-  if (fileInput) fileInput.addEventListener('change', handleFileUpload);
+  const uploadMenu = $('#uploadMenu');
+  if (uploadBtn) {
+    uploadBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      uploadMenu.classList.toggle('hidden');
+    });
+  }
+  // Close menu on outside click
+  document.addEventListener('click', (e) => {
+    if (uploadMenu && !uploadMenu.contains(e.target) && e.target !== uploadBtn) {
+      uploadMenu.classList.add('hidden');
+    }
+  });
+  // Attach change listeners to all file inputs
+  ['fileInputImage', 'fileInputDoc', 'fileInputCode', 'fileInputAny'].forEach(id => {
+    const fi = $(`#${id}`);
+    if (fi) fi.addEventListener('change', handleFileUpload);
+  });
 
   // Drag & drop
   document.addEventListener('dragover', (e) => { e.preventDefault(); });
   document.addEventListener('drop', (e) => {
     e.preventDefault();
     if (e.dataTransfer.files.length) {
-      const fi = $('#fileInput');
+      const fi = $('#fileInputAny');
       fi.files = e.dataTransfer.files;
       handleFileUpload();
     }
@@ -572,9 +587,23 @@ async function deleteMessage(msgId) {
 // ─── Chat (SSE Streaming) ─────────────────────────────────────────────
 let pendingAttachments = [];
 
+function triggerUpload(inputId) {
+  const menu = $('#uploadMenu');
+  if (menu) menu.classList.add('hidden');
+  const fi = $(`#${inputId}`);
+  if (fi) fi.click();
+}
+window.triggerUpload = triggerUpload;
+
 async function handleFileUpload() {
-  const fileInput = $('#fileInput');
-  if (!fileInput.files.length) return;
+  // Find which file input triggered this
+  const inputs = ['fileInputImage', 'fileInputDoc', 'fileInputCode', 'fileInputAny'];
+  let fileInput = null;
+  for (const id of inputs) {
+    const fi = $(`#${id}`);
+    if (fi && fi.files.length) { fileInput = fi; break; }
+  }
+  if (!fileInput) return;
   const formData = new FormData();
   for (const file of fileInput.files) formData.append('files', file);
   try {

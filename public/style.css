@@ -931,7 +931,7 @@ body {
   opacity: 0.7;
 }
 
-/* ═══ FILE UPLOAD ═══════════════════════════════════════════════════ */
+/* File upload button */
 .btn-upload {
   width: 36px; height: 36px; min-width: 36px;
   border: none; background: transparent; border-radius: 50%;
@@ -940,6 +940,29 @@ body {
   transition: all 0.15s ease; flex-shrink: 0;
 }
 .btn-upload:hover { color: var(--text-primary); }
+
+.upload-menu-wrap { position: relative; }
+
+.upload-menu {
+  position: absolute; bottom: 44px; left: 0;
+  background: var(--bg-surface); border: 1px solid var(--border-color);
+  border-radius: 12px; padding: 6px; min-width: 180px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 100;
+  animation: fadeSlideUp 0.15s ease;
+}
+
+.upload-menu button {
+  display: flex; align-items: center; gap: 10px;
+  width: 100%; padding: 10px 12px; border: none; border-radius: 8px;
+  background: transparent; color: var(--text-primary); font-size: 14px;
+  cursor: pointer; transition: background 0.1s; font-family: inherit;
+}
+.upload-menu button:hover { background: var(--bg-hover); }
+
+@keyframes fadeSlideUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 .attachment-preview {
   display: flex; gap: 8px; padding: 8px 16px;
