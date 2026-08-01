@@ -361,6 +361,49 @@ app.get('/api/tools', (req, res) => {
   }
 });
 
+// ─── Memory ───────────────────────────────────────────────────────
+app.get('/api/memory', (req, res) => {
+  if (!CONFIG.hermesMode) {
+    return res.json({ memories: [], mode: 'direct-api' });
+  }
+  try {
+    const { execSync } = require('child_process');
+    // Read memory files from hermes dir
+    const memDir = path.join(CONFIG.hermesDir, 'memories');
+    const defaultDir = path.join('/opt/hermes-agent', 'memories');
+    
+    let memories = [];
+    
+    for (const dir of [memDir, defaultDir]) {
+      try {
+        const files = fs.readdirSync(dir).filter(f => f.endsWith('.md'));
+        for (const file of files) {
+          const content = fs.readFileSync(path.join(dir, file), 'utf-8');
+          memories.push({
+            file,
+            name: file.replace('.md', '').replace(/-/g, ' '),
+            content: content.substring(0, 2000),
+            size: content.length
+          });
+        }
+      } catch {}
+    }
+    
+    // Also try to get user profile
+    try {
+      const userFile = path.join(CONFIG.hermesDir, 'memories', 'USER.md');
+      if (fs.existsSync(userFile)) {
+        const content = fs.readFileSync(userFile, 'utf-8');
+        memories.unshift({ file: 'USER.md', name: 'User Profile', content, size: content.length });
+      }
+    } catch {}
+    
+    res.json({ memories, mode: 'hermes-cli' });
+  } catch (e) {
+    res.json({ memories: [], mode: 'hermes-cli', error: e.message });
+  }
+});
+
 // ─── Chat ─────────────────────────────────────────────────────────
 app.post('/api/chat', async (req, res) => {
   const { message, sessionId, attachments } = req.body;

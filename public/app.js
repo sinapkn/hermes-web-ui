@@ -1145,3 +1145,40 @@ function closeSettings() {
 document.addEventListener('click', (e) => {
   if (e.target.id === 'settingsModal') closeSettings();
 });
+
+// ─── Memory Modal ────────────────────────────────────────────────
+async function openMemory() {
+  const modal = $('#memoryModal');
+  const body = $('#memoryBody');
+  modal.classList.remove('hidden');
+  body.innerHTML = '<div class="loading-state">Loading memories...</div>';
+  
+  try {
+    const data = await api('/api/memory');
+    
+    if (!data.memories || !data.memories.length) {
+      body.innerHTML = '<div class="loading-state">No memories found</div>';
+      return;
+    }
+    
+    body.innerHTML = data.memories.map(m => `
+      <div class="memory-card">
+        <div class="memory-card-header">
+          <span class="memory-card-name">${m.name}</span>
+          <span class="memory-card-size">${Math.round(m.size / 1024 * 10) / 10}KB</span>
+        </div>
+        <pre class="memory-card-content">${escapeHtml(m.content)}</pre>
+      </div>
+    `).join('');
+  } catch (e) {
+    body.innerHTML = '<div class="loading-state">Could not load memories</div>';
+  }
+}
+
+function closeMemory() {
+  $('#memoryModal').classList.add('hidden');
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'memoryModal') closeMemory();
+});
