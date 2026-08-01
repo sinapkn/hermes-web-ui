@@ -3,6 +3,31 @@
    Frosted glass, translucent layers, spring animations
    ═══════════════════════════════════════════════════════════════════════ */
 
+/* Vazir Font — Local */
+@font-face {
+  font-family: 'Vazir';
+  src: url('/fonts/Vazirmatn-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazir';
+  src: url('/fonts/Vazirmatn-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: 'Vazir';
+  src: url('/fonts/Vazirmatn-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
   /* Glass surfaces */
   --glass-bg: rgba(28, 28, 30, 0.72);
