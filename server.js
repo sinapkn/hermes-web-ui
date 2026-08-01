@@ -107,7 +107,7 @@ const CONFIG = loadConfig();
 async function callHermesCLI(message, sessionId) {
   const { spawn } = require('child_process');
   return new Promise((resolve, reject) => {
-    const args = ['chat', '-q', message.trim(), '--source', 'web', '-t', 'terminal,web,file', '--yolo', '--max-turns', '30'];
+    const args = ['chat', '-q', message.trim(), '--source', 'web', '-t', 'web,browser,terminal,file,code_execution,vision,image_gen,tts,skills,todo,memory,session_search,clarify,delegation,cronjob,computer_use', '--yolo', '--max-turns', '30'];
     if (sessionId) args.push('--resume', sessionId);
     args.push('-Q');
 
@@ -427,7 +427,12 @@ app.post('/api/chat', async (req, res) => {
   try {
     let result;
     if (CONFIG.hermesMode) {
+      // Heartbeat every 5s to prevent Railway timeout
+      const heartbeat = setInterval(() => {
+        try { res.write(': heartbeat\n\n'); } catch {}
+      }, 5000);
       result = await callHermesCLI(fullMessage, sessionId);
+      clearInterval(heartbeat);
     } else {
       result = await callDirectAPI(fullMessage);
       // Manage local session
