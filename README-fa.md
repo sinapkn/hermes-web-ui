@@ -7,6 +7,12 @@
 
 ---
 
+## 📸 پیش‌نمایش
+
+![رابط وب Sina AI](screenshots/preview.jpg)
+
+---
+
 ## ⚡ نصب سریع
 
 ```bash

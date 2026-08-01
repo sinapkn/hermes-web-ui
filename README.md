@@ -7,6 +7,12 @@ Works with or without Hermes — falls back to direct API chat when Hermes CLI i
 
 ---
 
+## 📸 Preview
+
+![Sina AI Web UI](screenshots/preview.jpg)
+
+---
+
 ## ⚡ One-Click Install
 
 ```bash
