@@ -439,6 +439,7 @@ body::before {
 .message.user .message-content {
   display: flex;
   justify-content: flex-end;
+  direction: rtl;
 }
 
 .message.user .message-user-text {
@@ -446,21 +447,24 @@ body::before {
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border-light);
-  border-radius: var(--radius-lg) var(--radius-sm) var(--radius-lg) var(--radius-lg);
+  border-radius: var(--radius-sm) var(--radius-lg) var(--radius-lg) var(--radius-lg);
   padding: 10px 16px;
   max-width: 75%;
   font-size: 15px;
   line-height: 1.6;
   color: var(--text-primary);
   box-shadow: var(--shadow-sm);
+  text-align: right;
+  direction: rtl;
 }
 
-/* Assistant message — clean, no bubble */
 .message.assistant .message-body {
   font-size: 15px;
   line-height: 1.75;
   color: var(--text-primary);
   padding: 4px 0;
+  text-align: right;
+  direction: rtl;
 }
 
 /* Delete button */
@@ -876,6 +880,8 @@ body::before {
   font-family: var(--font-mono);
   font-size: 13px;
   line-height: 1.6;
+  direction: ltr;
+  text-align: left;
 }
 
 .message-body code {
