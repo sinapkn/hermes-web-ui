@@ -1182,3 +1182,66 @@ function closeMemory() {
 document.addEventListener('click', (e) => {
   if (e.target.id === 'memoryModal') closeMemory();
 });
+
+// ─── Status Modal ────────────────────────────────────────────────
+async function openStatus() {
+  const modal = $('#statusModal');
+  const body = $('#statusBody');
+  modal.classList.remove('hidden');
+  body.innerHTML = '<div class="loading-state">Loading status...</div>';
+  
+  try {
+    const [health, config] = await Promise.all([
+      api('/api/health'),
+      api('/api/config')
+    ]);
+    
+    body.innerHTML = `
+      <div class="settings-section">
+        <h3>Server</h3>
+        <div class="settings-row">
+          <span class="settings-label">Status</span>
+          <span class="settings-badge ${health.status === 'ok' ? 'enabled' : 'disabled'}">${health.status === 'ok' ? 'Online' : 'Offline'}</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Mode</span>
+          <span class="settings-badge ${config.mode === 'hermes-cli' ? 'enabled' : 'disabled'}">${config.mode}</span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Model</h3>
+        <div class="settings-row">
+          <span class="settings-label">Name</span>
+          <span class="settings-value">${config.model}</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Provider</span>
+          <span class="settings-value">${config.provider}</span>
+        </div>
+      </div>
+      ${config.tools && config.tools.length ? `
+      <div class="settings-section">
+        <h3>Tools (${config.tools.length})</h3>
+        <div class="tools-grid">
+          ${config.tools.map(t => `
+            <div class="settings-row">
+              <span class="settings-label">${t.icon} ${t.label}</span>
+              <span class="settings-badge enabled">ON</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+    `;
+  } catch (e) {
+    body.innerHTML = '<div class="loading-state">Could not load status</div>';
+  }
+}
+
+function closeStatus() {
+  $('#statusModal').classList.add('hidden');
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'statusModal') closeStatus();
+});
