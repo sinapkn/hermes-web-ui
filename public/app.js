@@ -3,8 +3,56 @@
    ═══════════════════════════════════════════════════════════════════════ */
 
 // ─── PWA: Register Service Worker ──────────────────────────────────────
+let deferredPrompt = null;
+
 if ('serviceWorker' in navigator) {
   navigator.serviceWorker.register('/sw.js').catch(() => {});
+}
+
+// PWA install prompt
+window.addEventListener('beforeinstallprompt', (e) => {
+  e.preventDefault();
+  deferredPrompt = e;
+});
+
+// Show install banner after 5 seconds
+setTimeout(() => {
+  if (deferredPrompt && !localStorage.getItem('pwa-dismissed')) {
+    showInstallBanner();
+  }
+}, 5000);
+
+function showInstallBanner() {
+  if ($('#installBanner')) return;
+  const banner = document.createElement('div');
+  banner.id = 'installBanner';
+  banner.className = 'install-banner';
+  banner.innerHTML = `
+    <div class="install-banner-text">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+        <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+      </svg>
+      <span>نصب به عنوان اپ</span>
+    </div>
+    <button class="install-banner-btn" onclick="installApp()">نصب</button>
+    <button class="install-banner-close" onclick="dismissInstall()">×</button>
+  `;
+  document.body.appendChild(banner);
+}
+
+async function installApp() {
+  if (!deferredPrompt) return;
+  deferredPrompt.prompt();
+  const { outcome } = await deferredPrompt.userChoice;
+  deferredPrompt = null;
+  dismissInstall();
+}
+
+function dismissInstall() {
+  const banner = $('#installBanner');
+  if (banner) banner.remove();
+  localStorage.setItem('pwa-dismissed', '1');
 }
 
 // ─── State ─────────────────────────────────────────────────────────────
