@@ -932,6 +932,12 @@ function formatContent(content) {
   // Links: [text](url)
   html = html.replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" rel="noopener">$1</a>');
 
+  // Auto-link plain URLs (http/https)
+  html = html.replace(/(^|[\s(])((https?:\/\/)[^\s<>"')]+)/g, (match, pre, url) => {
+    // Don't double-link if already inside an <a> tag
+    return `${pre}<a href="${url}" target="_blank" rel="noopener">${url}</a>`;
+  });
+
   // Images: ![alt](url)
   html = html.replace(/!\[([^\]]*)\]\(([^)]+)\)/g, '<img src="$2" alt="$1" style="max-width:100%;border-radius:12px;margin:8px 0">');
   // Auto-link /uploads/ image refs
