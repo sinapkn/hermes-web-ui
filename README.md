@@ -1,4 +1,4 @@
-# 🤖 Hermes Web UI
+# Hermes Web UI
 
 A ChatGPT-style web interface for [Hermes Agent](https://hermes-agent.nousresearch.com).
 Works with or without Hermes — falls back to direct API chat when Hermes CLI isn't installed.
@@ -7,13 +7,13 @@ Works with or without Hermes — falls back to direct API chat when Hermes CLI i
 
 ---
 
-## 📸 Preview
+## Preview
 
 ![Sina AI Web UI](screenshots/preview.jpg)
 
 ---
 
-## ⚡ One-Click Install
+## One-Click Install
 
 ```bash
 git clone https://github.com/sinapkn/hermes-web-ui.git
@@ -27,19 +27,19 @@ The installer auto-detects your setup:
 
 ---
 
-## 🔧 Auto-Detection
+## Auto-Detection
 
 | Feature | With Hermes | Without Hermes |
 |---------|-------------|----------------|
 | Model & provider | Auto from config | Ask during install |
-| Terminal/file tools | ✅ | ❌ |
-| Web search | ✅ | ❌ |
+| Terminal/file tools | Yes | No |
+| Web search | Yes | No |
 | Sessions | state.db | In-memory |
 | API mode | CLI backend | Direct HTTP |
 
 ---
 
-## 🌐 Expose Publicly
+## Expose Publicly
 
 1. Go to [railway.app](https://railway.app) → New Project
 2. Add a TCP Proxy service
@@ -47,21 +47,21 @@ The installer auto-detects your setup:
 
 ---
 
-## 📋 Features
+## Features
 
-- ✍️ **Word-by-word typing** — like ChatGPT
-- 🖼️ **File upload** — images, docs, code with preview
-- 🖥️ **Full agent tools** — terminal, file ops, web search (with Hermes)
-- 🎨 **Dark theme** — clean, modern UI
-- 🌐 **RTL Persian** — full Farsi support
-- 🔄 **Session persistence** — powered by Hermes state.db
-- 📱 **Mobile PWA** — installable on phones
-- 📎 **Upload menu** — image, doc, code, any file
-- 🖱️ **Drag & drop** — drop files anywhere
+- **Word-by-word typing** — like ChatGPT
+- **File upload** — images, docs, code with preview
+- **Full agent tools** — terminal, file ops, web search (with Hermes)
+- **Dark theme** — clean, modern UI
+- **RTL Persian** — full Farsi support
+- **Session persistence** — powered by Hermes state.db
+- **Mobile PWA** — installable on phones
+- **Upload menu** — image, doc, code, any file
+- **Drag & drop** — drop files anywhere
 
 ---
 
-## 🛠️ Tech Stack
+## Tech Stack
 
 - **Backend:** Node.js + Express + Multer
 - **Frontend:** Vanilla JS (no framework)
@@ -71,7 +71,7 @@ The installer auto-detects your setup:
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 ### With Hermes CLI
 Reads from `~/.hermes/.env` automatically.
@@ -84,10 +84,10 @@ The installer will ask for:
 
 ---
 
-## 📄 License
+## License
 
 MIT
 
 ---
 
-Made with ❤️ by [SINA pk](https://github.com/sinapkn)
+Made with by [SINA pk](https://github.com/sinapkn)
