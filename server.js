@@ -9,6 +9,7 @@ const PORT = process.env.PORT || 3000;
 
 app.use(express.json({ limit: '50mb' }));
 
+
 // ─── File Upload ──────────────────────────────────────────────────
 const UPLOAD_DIR = path.join(__dirname, 'uploads');
 fs.mkdirSync(UPLOAD_DIR, { recursive: true });
@@ -272,6 +273,92 @@ app.get('/api/health', (req, res) => {
     tools: CONFIG.hermesMode,
     mode: CONFIG.hermesMode ? 'hermes-cli' : 'direct-api'
   });
+});
+
+// ─── Config Info ──────────────────────────────────────────────────
+app.get('/api/config', (req, res) => {
+  const config = {
+    model: CONFIG.model || 'unknown',
+    provider: CONFIG.provider || 'unknown',
+    baseUrl: CONFIG.baseUrl || '',
+    mode: CONFIG.hermesMode ? 'hermes-cli' : 'direct-api',
+    tools: CONFIG.hermesMode ? [
+      { name: 'terminal', label: 'Terminal', icon: '💻', enabled: true },
+      { name: 'file', label: 'File', icon: '📁', enabled: true },
+      { name: 'web', label: 'Web Search', icon: '🔍', enabled: true },
+      { name: 'browser', label: 'Browser', icon: '🌐', enabled: true },
+      { name: 'vision', label: 'Vision', icon: '👁️', enabled: true },
+      { name: 'image_gen', label: 'Image Gen', icon: '🎨', enabled: true },
+      { name: 'code_execution', label: 'Code', icon: '⚡', enabled: true },
+      { name: 'tts', label: 'TTS', icon: '🔊', enabled: true },
+      { name: 'skills', label: 'Skills', icon: '📚', enabled: true },
+      { name: 'memory', label: 'Memory', icon: '💾', enabled: true },
+      { name: 'todo', label: 'Tasks', icon: '📋', enabled: true },
+    ] : []
+  };
+  res.json(config);
+});
+
+// ─── Update Config ────────────────────────────────────────────────
+app.post('/api/config', (req, res) => {
+  const { model, provider, baseUrl } = req.body;
+  const hermesDir = CONFIG.hermesDir;
+  const envFile = path.join(hermesDir, '.env');
+
+  try {
+    let env = '';
+    try { env = fs.readFileSync(envFile, 'utf-8'); } catch {}
+
+    const setEnv = (key, val) => {
+      const re = new RegExp('^' + key + '=.*$', 'm');
+      if (env.match(re)) {
+        env = env.replace(re, `${key}=${val}`);
+      } else {
+        env += `\n${key}=${val}`;
+      }
+    };
+
+    if (model !== undefined) {
+      setEnv('LLM_MODEL', model);
+      CONFIG.model = model;
+    }
+    if (provider !== undefined) {
+      setEnv('CUSTOM_PROVIDER_NAME', provider);
+      CONFIG.provider = provider;
+    }
+    if (baseUrl !== undefined) {
+      setEnv('CUSTOM_PROVIDER_BASE_URL', baseUrl);
+      CONFIG.baseUrl = baseUrl;
+    }
+
+    fs.writeFileSync(envFile, env.trim() + '\n');
+    console.log(`[CONFIG] Updated: model=${CONFIG.model} provider=${CONFIG.provider}`);
+    res.json({ ok: true, model: CONFIG.model, provider: CONFIG.provider });
+  } catch (e) {
+    res.status(500).json({ error: e.message });
+  }
+});
+
+// ─── Tools Status ─────────────────────────────────────────────────
+app.get('/api/tools', (req, res) => {
+  if (!CONFIG.hermesMode) {
+    return res.json({ tools: [], mode: 'direct-api' });
+  }
+  try {
+    const { execSync } = require('child_process');
+    const output = execSync('hermes tools list 2>&1', { timeout: 10000, encoding: 'utf8' });
+    const tools = [];
+    const lines = output.split('\n');
+    for (const line of lines) {
+      const match = line.match(/✓\s+enabled\s+(\w+)\s+(.+)/);
+      if (match) {
+        tools.push({ name: match[1], label: match[2].trim(), enabled: true });
+      }
+    }
+    res.json({ tools, mode: 'hermes-cli' });
+  } catch (e) {
+    res.json({ tools: [], mode: 'hermes-cli', error: e.message });
+  }
 });
 
 // ─── Chat ─────────────────────────────────────────────────────────

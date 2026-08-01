@@ -1032,3 +1032,116 @@ function formatUptime(seconds) {
   if (h > 0) return `${h}h ${m}m`;
   return `${m}m`;
 }
+
+// ─── Settings Modal ───────────────────────────────────────────────
+async function openSettings() {
+  const modal = $('#settingsModal');
+  const body = $('#settingsBody');
+  modal.classList.remove('hidden');
+  
+  try {
+    const [health, config] = await Promise.all([
+      api('/api/health'),
+      api('/api/config')
+    ]);
+    
+    let toolsHtml = '';
+    if (config.tools && config.tools.length) {
+      toolsHtml = `
+        <div class="settings-section">
+          <h3>Active Tools</h3>
+          <div class="tools-grid">
+            ${config.tools.map(t => `
+              <div class="settings-row">
+                <span class="settings-label">${t.icon} ${t.label}</span>
+                <span class="settings-badge enabled">ON</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    body.innerHTML = `
+      <div class="settings-section">
+        <h3>Model</h3>
+        <div class="settings-input-group">
+          <label>Model Name</label>
+          <input type="text" id="settingModel" value="${config.model}" class="settings-input" placeholder="e.g. claude-sonnet-4, gpt-4o...">
+        </div>
+        <div class="settings-input-group">
+          <label>Provider</label>
+          <input type="text" id="settingProvider" value="${config.provider}" class="settings-input" placeholder="e.g. openrouter, anthropic...">
+        </div>
+        <div class="settings-input-group">
+          <label>Base URL</label>
+          <input type="text" id="settingBaseUrl" value="${config.baseUrl || ''}" class="settings-input" placeholder="API endpoint URL">
+        </div>
+        <button onclick="saveSettings()" class="settings-save-btn">Save</button>
+        <div id="settingsStatus" class="settings-status"></div>
+      </div>
+      ${toolsHtml}
+      <div class="settings-section">
+        <h3>System</h3>
+        <div class="settings-row">
+          <span class="settings-label">Mode</span>
+          <span class="settings-badge ${config.mode === 'hermes-cli' ? 'enabled' : 'disabled'}">${config.mode}</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Status</span>
+          <span class="settings-badge ${health.status === 'ok' ? 'enabled' : 'disabled'}">${health.status}</span>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    body.innerHTML = '<div class="loading-state">Could not load settings</div>';
+  }
+}
+
+async function saveSettings() {
+  const status = $('#settingsStatus');
+  const model = $('#settingModel').value.trim();
+  const provider = $('#settingProvider').value.trim();
+  const baseUrl = $('#settingBaseUrl').value.trim();
+  
+  if (!model) {
+    status.innerHTML = '<span class="settings-badge disabled">Model is required</span>';
+    return;
+  }
+  
+  status.innerHTML = '<span class="settings-badge enabled">Saving...</span>';
+  
+  try {
+    const res = await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, provider, baseUrl })
+    });
+    const data = await res.json();
+    
+    if (data.ok) {
+      status.innerHTML = '<span class="settings-badge enabled">Saved! Restart server to apply.</span>';
+      // Update UI immediately
+      const brandText = $('.brand-text');
+      const h1 = $('.welcome-screen h1');
+      const title = document.title;
+      const displayModel = model.split('/').pop();
+      if (brandText) brandText.textContent = displayModel;
+      if (h1) h1.textContent = displayModel;
+      document.title = displayModel + ' AI';
+    } else {
+      status.innerHTML = `<span class="settings-badge disabled">Error: ${data.error}</span>`;
+    }
+  } catch (e) {
+    status.innerHTML = `<span class="settings-badge disabled">Error: ${e.message}</span>`;
+  }
+}
+
+function closeSettings() {
+  $('#settingsModal').classList.add('hidden');
+}
+
+// Close modal on outside click
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'settingsModal') closeSettings();
+});
