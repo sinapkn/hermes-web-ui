@@ -1,170 +1,169 @@
-1|<!DOCTYPE html>
-2|<html lang="fa" dir="rtl">
-3|<head>
-4|  <meta charset="UTF-8">
-5|  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-6|  <meta name="theme-color" content="#202123">
-7|  <meta name="apple-mobile-web-app-capable" content="yes">
-8|  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-9|  <meta name="apple-mobile-web-app-title" content="Hermes AI">
-10|  <link rel="manifest" href="/manifest.json">
-11|  <link rel="apple-touch-icon" href="/icon-192.png">
-12|  <title>Hermes AI</title>
-13|  <link rel="preconnect" href="https://fonts.googleapis.com">
-14|  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-15|  <link rel="stylesheet" href="/style.css">
-16|</head>
-17|<body>
-18|  <div id="app">
-19|    <!-- Sidebar -->
-20|    <aside id="sidebar" class="sidebar">
-21|      <div class="sidebar-header">
-22|        <div class="sidebar-brand">
-23|          <img class="brand-icon" src="https://cdn.hermesagents.net/public/images/hermes-avatar.png" alt="Hermes">
-24|          <span class="brand-text">Sina AI</span>
-25|        </div>
-26|        <button id="newChatBtn" class="btn-new-chat" title="چت جدید">
-27|          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-28|            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
-29|          </svg>
-30|        </button>
-31|      </div>
-32|
-33|      <div class="sidebar-search">
-34|        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-35|          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
-36|        </svg>
-37|        <input type="text" id="searchInput" placeholder="Search..." autocomplete="off">
-38|        <button id="searchCloseBtn" class="search-close hidden" onclick="clearSearch()">✕</button>
-39|      </div>
-40|
-41|      <!-- Search Results -->
-42|      <div id="searchResults" class="search-results hidden"></div>
-43|
-44|      <!-- Session List -->
-45|      <div id="sessionList" class="session-list">
-46|        <div class="loading-state">Loading...</div>
-47|      </div>
-48|
-49|      <div class="sidebar-footer">
-50|        <button id="memoryBtn" class="btn-sidebar-footer" title="Memory">
-51|          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-52|            <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
-53|            <path d="M20.66 8A10 10 0 0 0 14 2.05V8h6.66z"/>
-54|          </svg>
-55|          <span>Memory</span>
-56|        </button>
-57|        <button id="healthBtn" class="btn-sidebar-footer" title="Status">
-58|          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-59|            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
-60|          </svg>
-61|          <span>Status</span>
-62|        </button>
-63|        <button id="deleteSessionBtn" class="btn-sidebar-footer btn-danger" title="Delete chat">
-64|          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-65|            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-66|          </svg>
-67|          <span>Delete</span>
-68|        </button>
-69|        <button id="exportBtn" class="btn-sidebar-footer" title="Export">
-70|          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-71|            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
-72|            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
-73|          </svg>
-74|          <span>Export</span>
-75|        </button>
-76|        <button id="deleteAllBtn" class="btn-sidebar-footer btn-danger" onclick="deleteAllSessions()" title="Delete all chats">
-77|          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-78|            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
-79|            <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
-80|          </svg>
-81|          <span>Delete all</span>
-82|        </button>
-83|      </div>
-84|    </aside>
-85|
-86|    <!-- Main Chat Area -->
-87|    <main id="mainContent" class="main-content">
-88|      <!-- Top bar -->
-89|      <div class="topbar">
-90|        <button id="menuToggle" class="btn-menu" title="Toggle sidebar">
-91|          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-92|            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/>
-93|            <line x1="3" y1="18" x2="21" y2="18"/>
-94|          </svg>
-95|        </button>
-96|        <div class="topbar-title" id="topbarTitle">Hermes AI</div>
-97|      </div>
-98|
-99|      <!-- Welcome screen -->
-100|      <div id="welcomeScreen" class="welcome-screen">
-101|        <div class="welcome-logo">
-102|          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-103|            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
-104|            <path d="M8 12h8M12 8v8"/>
-105|          </svg>
-106|        </div>
-107|        <h1>Sina AI</h1>
-108|        <p class="welcome-subtitle">چطور می‌تونم کمکت کنم؟</p>
-127|      </div>
-128|
-129|      <!-- Messages area -->
-130|      <div id="messagesContainer" class="messages-container hidden">
-131|        <div id="messagesList" class="messages-list"></div>
-132|        <div id="typingIndicator" class="typing-indicator hidden">
-133|          <div class="typing-dots">
-134|            <span></span><span></span><span></span>
-135|          </div>
-136|          <span>در حال تایپ...</span>
-137|        </div>
-138|      </div>
-139|
-140|      <!-- Input area -->
-141|      <div class="input-area">
-142|        <div id="attachmentPreview" class="attachment-preview hidden"></div>
-143|        <div class="input-wrapper">
-144|          <!-- Hidden file inputs for each type -->
-145|          <input type="file" id="fileInputImage" multiple class="hidden" accept="image/*">
-146|          <input type="file" id="fileInputDoc" multiple class="hidden" accept=".pdf,.doc,.docx,.txt,.md,.csv,.xml,.json,.yaml,.yml,.log,.env,.toml,.cfg,.ini,.rtf">
-147|          <input type="file" id="fileInputCode" multiple class="hidden" accept=".py,.js,.ts,.jsx,.tsx,.html,.css,.scss,.sh,.bash,.sql,.go,.rs,.java,.c,.cpp,.h,.rb,.php,.swift,.kt">
-148|          <input type="file" id="fileInputAny" multiple class="hidden">
-149|          <!-- Upload menu -->
-150|          <div class="upload-menu-wrap">
-151|            <button id="uploadBtn" class="btn-upload" aria-label="پیوست" title="پیوست فایل">
-152|              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-153|                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
-154|              </svg>
-155|            </button>
-156|            <div id="uploadMenu" class="upload-menu hidden">
-157|              <button onclick="triggerUpload('fileInputImage')">
-158|                <span>🖼️</span> ارسال عکس
-159|              </button>
-160|              <button onclick="triggerUpload('fileInputDoc')">
-161|                <span>📄</span> ارسال داکیومنت
-162|              </button>
-163|              <button onclick="triggerUpload('fileInputCode')">
-164|                <span>💻</span> ارسال کد
-165|              </button>
-166|              <button onclick="triggerUpload('fileInputAny')">
-167|                <span>📎</span> ارسال فایل
-168|              </button>
-169|            </div>
-170|          </div>
-171|          <textarea id="messageInput" placeholder="پیامتو بنویس..." rows="1" autofocus></textarea>
-172|          <button id="sendBtn" class="btn-send" disabled aria-label="ارسال">
-173|            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
-174|              <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"/>
-175|            </svg>
-176|          </button>
-177|        </div>
-178|        <div class="input-footer">
-179|          <span> هوش مصنوعی ممکنه اشتباه کنه. اطلاعات مهم رو بررسی کن.</span>
-180|        </div>
-181|      </div>
-182|    </main>
-183|  </div>
-184|
-185|  <script src="/app.js"></script>
-186|</body>
-187|</html>
-188|
+<!DOCTYPE html>
+<html lang="fa" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#202123">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Hermes AI">
+  <link rel="manifest" href="/manifest.json">
+  <link rel="apple-touch-icon" href="/icon-192.png">
+  <title>Hermes AI</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Vazirmatn:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+  <div id="app">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <div class="sidebar-header">
+        <div class="sidebar-brand">
+          <img class="brand-icon" src="https://cdn.hermesagents.net/public/images/hermes-avatar.png" alt="Hermes">
+          <span class="brand-text">Sina AI</span>
+        </div>
+        <button id="newChatBtn" class="btn-new-chat" title="چت جدید">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+          </svg>
+        </button>
+      </div>
+
+      <div class="sidebar-search">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
+        <input type="text" id="searchInput" placeholder="Search..." autocomplete="off">
+        <button id="searchCloseBtn" class="search-close hidden" onclick="clearSearch()">✕</button>
+      </div>
+
+      <!-- Search Results -->
+      <div id="searchResults" class="search-results hidden"></div>
+
+      <!-- Session List -->
+      <div id="sessionList" class="session-list">
+        <div class="loading-state">Loading...</div>
+      </div>
+
+      <div class="sidebar-footer">
+        <button id="memoryBtn" class="btn-sidebar-footer" title="Memory">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 2a10 10 0 1 0 10 10H12V2z"/>
+            <path d="M20.66 8A10 10 0 0 0 14 2.05V8h6.66z"/>
+          </svg>
+          <span>Memory</span>
+        </button>
+        <button id="healthBtn" class="btn-sidebar-footer" title="Status">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M22 12h-4l-3 9L9 3l-3 9H2"/>
+          </svg>
+          <span>Status</span>
+        </button>
+        <button id="deleteSessionBtn" class="btn-sidebar-footer btn-danger" title="Delete chat">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+          </svg>
+          <span>Delete</span>
+        </button>
+        <button id="exportBtn" class="btn-sidebar-footer" title="Export">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/>
+            <polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/>
+          </svg>
+          <span>Export</span>
+        </button>
+        <button id="deleteAllBtn" class="btn-sidebar-footer btn-danger" onclick="deleteAllSessions()" title="Delete all chats">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+            <line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>
+          </svg>
+          <span>Delete all</span>
+        </button>
+      </div>
+    </aside>
+
+    <!-- Main Chat Area -->
+    <main id="mainContent" class="main-content">
+      <!-- Top bar -->
+      <div class="topbar">
+        <button id="menuToggle" class="btn-menu" title="Toggle sidebar">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+          </svg>
+        </button>
+        <div class="topbar-title" id="topbarTitle">Hermes AI</div>
+      </div>
+
+      <!-- Welcome screen -->
+      <div id="welcomeScreen" class="welcome-screen">
+        <div class="welcome-logo">
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/>
+            <path d="M8 12h8M12 8v8"/>
+          </svg>
+        </div>
+        <h1>Sina AI</h1>
+        <p class="welcome-subtitle">چطور می‌تونم کمکت کنم؟</p>
+      </div>
+
+      <!-- Messages area -->
+      <div id="messagesContainer" class="messages-container hidden">
+        <div id="messagesList" class="messages-list"></div>
+        <div id="typingIndicator" class="typing-indicator hidden">
+          <div class="typing-dots">
+            <span></span><span></span><span></span>
+          </div>
+          <span>در حال تایپ...</span>
+        </div>
+      </div>
+
+      <!-- Input area -->
+      <div class="input-area">
+        <div id="attachmentPreview" class="attachment-preview hidden"></div>
+        <div class="input-wrapper">
+          <!-- Hidden file inputs for each type -->
+          <input type="file" id="fileInputImage" multiple class="hidden" accept="image/*">
+          <input type="file" id="fileInputDoc" multiple class="hidden" accept=".pdf,.doc,.docx,.txt,.md,.csv,.xml,.json,.yaml,.yml,.log,.env,.toml,.cfg,.ini,.rtf">
+          <input type="file" id="fileInputCode" multiple class="hidden" accept=".py,.js,.ts,.jsx,.tsx,.html,.css,.scss,.sh,.bash,.sql,.go,.rs,.java,.c,.cpp,.h,.rb,.php,.swift,.kt">
+          <input type="file" id="fileInputAny" multiple class="hidden">
+          <!-- Upload menu -->
+          <div class="upload-menu-wrap">
+            <button id="uploadBtn" class="btn-upload" aria-label="پیوست" title="پیوست فایل">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+            </button>
+            <div id="uploadMenu" class="upload-menu hidden">
+              <button onclick="triggerUpload('fileInputImage')">
+                <span>🖼️</span> ارسال عکس
+              </button>
+              <button onclick="triggerUpload('fileInputDoc')">
+                <span>📄</span> ارسال داکیومنت
+              </button>
+              <button onclick="triggerUpload('fileInputCode')">
+                <span>💻</span> ارسال کد
+              </button>
+              <button onclick="triggerUpload('fileInputAny')">
+                <span>📎</span> ارسال فایل
+              </button>
+            </div>
+          </div>
+          <textarea id="messageInput" placeholder="پیامتو بنویس..." rows="1" autofocus></textarea>
+          <button id="sendBtn" class="btn-send" disabled aria-label="ارسال">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3.478 2.404a.75.75 0 0 0-.926.941l2.432 7.905H13.5a.75.75 0 0 1 0 1.5H4.984l-2.432 7.905a.75.75 0 0 0 .926.94 60.519 60.519 0 0 0 18.445-8.986.75.75 0 0 0 0-1.218A60.517 60.517 0 0 0 3.478 2.404Z"/>
+            </svg>
+          </button>
+        </div>
+        <div class="input-footer">
+          <span> هوش مصنوعی ممکنه اشتباه کنه. اطلاعات مهم رو بررسی کن.</span>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="/app.js"></script>
+</body>
+</html>
