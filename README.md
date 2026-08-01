@@ -3,7 +3,7 @@
 A ChatGPT-style web interface for [Hermes Agent](https://hermes-agent.nousresearch.com).
 Works with or without Hermes — falls back to direct API chat when Hermes CLI isn't installed.
 
-**🇮🇷 [نسخه فارسی](README-fa.md)**
+**📘 [نسخه فارسی](README-fa.md)**
 
 ---
 

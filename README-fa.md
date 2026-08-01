@@ -3,7 +3,7 @@
 رابط وبی به سبک ChatGPT برای [Hermes Agent](https://hermes-agent.nousresearch.com).
 با یا بدون Hermes کار میکنه — اگه CLI نصب نباشه، مستقیم با API چت میکنه.
 
-**🇬🇧 [English README](README.md)**
+**📘 [English README](README.md)**
 
 ---
 
