@@ -947,7 +947,7 @@ body {
 .upload-menu-wrap { position: relative; }
 
 .upload-menu {
-  position: absolute; bottom: 44px; left: 0;
+  position: absolute; bottom: 44px; right: 0;
   background: var(--bg-surface); border: 1px solid var(--border-color);
   border-radius: 12px; padding: 6px; min-width: 180px;
   box-shadow: 0 8px 32px rgba(0,0,0,0.4); z-index: 100;
