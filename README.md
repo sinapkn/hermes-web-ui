@@ -64,7 +64,7 @@ The installer auto-detects your setup:
 - 🖼️ **File upload** — images, docs, code with preview / **آپلود فایل** — عکس، داکیومنت، کد با پیش‌نمایش
 - 🖥️ **Full agent tools** — terminal, file ops, web search (with Hermes) / **ابزار کامل** — ترمینال، فایل، جستجو (با Hermes)
 - 🎨 **Dark theme** — clean, modern UI / **تم تاریک** — رابط تمیز و مدرن
-- 🇮🇷 **RTL Persian** — full Farsi support / **فارسی راست‌چین** — پشتیبانی کامل فارسی
+- 🌐 **RTL Persian** — full Farsi support / **فارسی راست‌چین** — پشتیبانی کامل فارسی
 - 🔄 **Session persistence** — powered by Hermes state.db / **حفظ سشن‌ها** — از state.db هرمس
 - 📱 **Mobile PWA** — installable on phones / **موبایل PWA** — قابل نصب روی گوشی
 - 📎 **Upload menu** — image, doc, code, any file / **منوی آپلود** — عکس، داکیومنت، کد، هر فایلی
