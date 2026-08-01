@@ -284,8 +284,8 @@ body::before {
   width: 28px;
   height: 28px;
   min-width: 28px;
-  border: none;
-  background: transparent;
+  border: none !important;
+  background: transparent !important;
   color: var(--text-muted);
   border-radius: var(--radius-sm);
   cursor: pointer;
@@ -293,6 +293,10 @@ body::before {
   align-items: center;
   justify-content: center;
   transition: all var(--transition-fast);
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: none !important;
+  outline: none;
 }
 
 .session-item:hover .session-delete-btn {
@@ -1112,7 +1116,11 @@ body::before {
     height: 40px;
     min-width: 40px;
     font-size: 16px;
-    -webkit-tap-highlight-color: transparent;
+    -webkit-appearance: none;
+    appearance: none;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
   }
 
   .session-delete-btn:active {
