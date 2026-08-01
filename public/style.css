@@ -259,6 +259,7 @@ body::before {
   transition: all var(--transition-fast);
   gap: 8px;
   position: relative;
+  overflow: hidden;
 }
 
 .session-item:hover {
@@ -272,11 +273,16 @@ body::before {
 
 .session-item-title {
   flex: 1;
+  min-width: 0;
   font-size: 13px;
   color: var(--text-primary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+.session-delete-btn, .session-menu-btn {
+  flex-shrink: 0;
 }
 
 .session-delete-btn {
