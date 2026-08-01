@@ -438,8 +438,7 @@ body::before {
 /* User message — glass bubble */
 .message.user .message-content {
   display: flex;
-  justify-content: flex-end;
-  direction: rtl;
+  justify-content: flex-start;
 }
 
 .message.user .message-user-text {
