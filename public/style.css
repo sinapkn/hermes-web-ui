@@ -1333,3 +1333,39 @@ body::before {
 .search-result-item:hover {
   background: rgba(255, 255, 255, 0.06);
 }
+
+/* ═══ SESSION MENU BUTTON (three dots) ═════════════════════════════ */
+
+.session-menu-btn {
+  opacity: 0;
+  width: 28px;
+  height: 28px;
+  min-width: 28px;
+  border: none !important;
+  background: transparent !important;
+  color: var(--text-muted);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all var(--transition-fast);
+  -webkit-appearance: none;
+  appearance: none;
+  box-shadow: none !important;
+  outline: none;
+  flex-shrink: 0;
+}
+
+.session-item:hover .session-menu-btn {
+  opacity: 1;
+}
+
+.session-menu-btn:hover {
+  color: var(--text-primary);
+  background: rgba(255, 255, 255, 0.08) !important;
+}
+
+.session-menu-btn:active {
+  transform: scale(0.9);
+}
