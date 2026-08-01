@@ -803,6 +803,12 @@ function toggleSidebar() {
     document.body.appendChild(overlay);
   }
   overlay.classList.toggle('show');
+  // Prevent body scroll when sidebar open on mobile
+  if (sidebar.classList.contains('open')) {
+    document.body.style.overflow = 'hidden';
+  } else {
+    document.body.style.overflow = '';
+  }
 }
 
 // ─── Health Status ────────────────────────────────────────────────────

@@ -1054,12 +1054,11 @@ body::before {
 
   .sidebar {
     position: fixed;
-    top: 0;
-    right: 0;
+    top: 0; right: 0;
     width: 280px;
     height: 100%;
     transform: translateX(100%);
-    z-index: 100;
+    z-index: 200;
     box-shadow: -8px 0 32px rgba(0,0,0,0.3);
   }
 
@@ -1079,6 +1078,10 @@ body::before {
 
   .sidebar-overlay.show {
     opacity: 1;
+    pointer-events: auto;
+  }
+
+  .sidebar-overlay ~ .main-content {
     pointer-events: auto;
   }
 
