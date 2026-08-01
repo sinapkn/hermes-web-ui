@@ -1375,3 +1375,20 @@ body::before {
 .session-menu-btn:active {
   transform: scale(0.9);
 }
+
+/* ═══ SESSION ITEM CONTENT ═════════════════════════════════════════ */
+
+.session-item-content {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+}
+
+.session-title {
+  font-size: 13px;
+  color: var(--text-primary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  direction: rtl;
+}
