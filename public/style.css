@@ -392,6 +392,13 @@ body::before {
   border-radius: var(--radius-lg);
   margin-bottom: 20px;
   box-shadow: var(--shadow-lg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--glass-bg-light);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid var(--glass-border-light);
 }
 
 .welcome-title {
