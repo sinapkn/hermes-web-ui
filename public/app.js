@@ -23,6 +23,29 @@ const messagesList = $('#messagesList');
 const welcomeScreen = $('#welcomeScreen');
 const typingIndicator = $('#typingIndicator');
 const messageInput = $('#messageInput');
+
+// ─── Dynamic Model Name ─────────────────────────────────────────────
+async function detectModel() {
+  try {
+    const res = await fetch('/api/health');
+    const data = await res.json();
+    if (data.model) {
+      const name = data.model.charAt(0).toUpperCase() + data.model.slice(1);
+      // Update sidebar brand
+      const brandText = $('.brand-text');
+      if (brandText) brandText.textContent = name;
+      // Update welcome title
+      const welcomeTitle = welcomeScreen?.querySelector('h1');
+      if (welcomeTitle) welcomeTitle.textContent = name;
+      // Update topbar
+      const topbarTitle = $('#topbarTitle');
+      if (topbarTitle) topbarTitle.textContent = name;
+      // Update page title
+      document.title = name;
+    }
+  } catch {}
+}
+detectModel();
 const sendBtn = $('#sendBtn');
 const searchInput = $('#searchInput');
 const topbarTitle = $('#topbarTitle');
