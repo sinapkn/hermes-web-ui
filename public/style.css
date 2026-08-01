@@ -1068,9 +1068,12 @@ body::before {
 
   .sidebar-overlay {
     position: fixed;
-    inset: 0;
+    top: 0;
+    bottom: 0;
+    left: 0;
+    right: 280px;
     background: rgba(0,0,0,0.4);
-    z-index: 99;
+    z-index: 199;
     opacity: 0;
     pointer-events: none;
     transition: opacity 0.3s ease;
@@ -1078,10 +1081,6 @@ body::before {
 
   .sidebar-overlay.show {
     opacity: 1;
-    pointer-events: auto;
-  }
-
-  .sidebar-overlay ~ .main-content {
     pointer-events: auto;
   }
 
