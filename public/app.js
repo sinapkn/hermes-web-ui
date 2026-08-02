@@ -1341,7 +1341,7 @@ let replyData = null;
     if (!preview) return;
     const truncated = text.length > 200 ? text.substring(0, 200) + '...' : text;
     const escaped = truncated.replace(/</g, '&lt;').replace(/>/g, '&gt;');
-    preview.innerHTML = '<div class="reply-preview-content"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg><span class="reply-preview-text">' + escaped + '</span><button class="reply-preview-close" onclick="cancelReply()">&times;</button></div>';
+    preview.innerHTML = '<div class="reply-preview-inner"><div class="reply-preview-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg></div><span class="reply-preview-text">' + escaped + '</span><button class="reply-preview-close" onclick="cancelReply()">&times;</button></div>';
     preview.classList.remove('hidden');
   }
 
