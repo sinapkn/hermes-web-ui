@@ -1865,15 +1865,17 @@ body::before {
   text-align: left;
 }
 
-/* ═══ REPLY PREVIEW ═════════════════════════════════════════════════ */
+
+/* ═══ REPLY PREVIEW (ChatGPT/Telegram style) ══════════════════════ */
 
 .reply-preview {
-  padding: 8px 12px;
-  background: rgba(124, 92, 255, 0.08);
-  border-right: 3px solid var(--accent);
-  border-radius: var(--radius-sm);
-  margin: 0 12px 6px;
-  animation: replySlideIn 0.2s ease;
+  padding: 10px 14px;
+  background: rgba(124, 92, 255, 0.06);
+  border: 1px solid rgba(124, 92, 255, 0.15);
+  border-radius: var(--radius-md) var(--radius-md) 0 0;
+  margin: 16px 16px 0;
+  animation: replySlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  position: relative;
 }
 
 .reply-preview.hidden { display: none; }
@@ -1881,7 +1883,7 @@ body::before {
 .reply-preview-content {
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
   direction: rtl;
 }
 
@@ -1892,13 +1894,14 @@ body::before {
 
 .reply-preview-text {
   flex: 1;
-  font-size: 12px;
+  font-size: 13px;
   color: var(--text-secondary);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
   direction: rtl;
   text-align: right;
+  line-height: 1.4;
 }
 
 .reply-preview-close {
@@ -1906,18 +1909,23 @@ body::before {
   background: transparent;
   border: none;
   color: var(--text-muted);
-  font-size: 18px;
+  font-size: 20px;
   cursor: pointer;
-  padding: 0 4px;
-  line-height: 1;
-  transition: color 0.15s;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 6px;
+  transition: all 0.15s;
 }
 
 .reply-preview-close:hover {
+  background: rgba(255,255,255,0.08);
   color: var(--text-primary);
 }
 
-@keyframes replySlideIn {
+@keyframes replySlideUp {
   from { opacity: 0; transform: translateY(8px); }
   to { opacity: 1; transform: translateY(0); }
 }
