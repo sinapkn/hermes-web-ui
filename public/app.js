@@ -1312,3 +1312,60 @@ document.addEventListener('click', (e) => {
   if (e.target.id === 'statusModal') closeStatus();
 });
 
+
+// ─── Text Selection Reply ───────────────────────────────────────────
+(function() {
+  let replyBtn = null;
+
+  function createReplyBtn() {
+    if (replyBtn) return replyBtn;
+    replyBtn = document.createElement('div');
+    replyBtn.id = 'replyFloatBtn';
+    replyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>';
+    replyBtn.title = 'Reply to selection';
+    document.body.appendChild(replyBtn);
+    return replyBtn;
+  }
+
+  document.addEventListener('mouseup', (e) => {
+    setTimeout(() => {
+      const sel = window.getSelection();
+      const text = sel ? sel.toString().trim() : '';
+
+      if (!text || text.length < 2) {
+        if (replyBtn) replyBtn.style.display = 'none';
+        return;
+      }
+
+      // Don't show on input/textarea
+      const tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+
+      const btn = createReplyBtn();
+      btn.style.display = 'flex';
+      btn.style.position = 'fixed';
+      btn.style.left = (rect.left + rect.width / 2 - 16) + 'px';
+      btn.style.top = (rect.top - 40) + 'px';
+      btn.onclick = () => {
+        const input = document.getElementById('chatInput');
+        if (!input) return;
+        const quoted = text.split('\n').map(l => '> ' + l).join('\n');
+        input.value = quoted + '\n\n';
+        input.focus();
+        input.style.height = 'auto';
+        input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+        btn.style.display = 'none';
+        sel.removeAllRanges();
+      };
+    }, 10);
+  });
+
+  document.addEventListener('mousedown', (e) => {
+    if (replyBtn && !e.target.closest('#replyFloatBtn')) {
+      replyBtn.style.display = 'none';
+    }
+  });
+})();
