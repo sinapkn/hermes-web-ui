@@ -1346,6 +1346,9 @@ let replyData = null;
   }
 
   document.addEventListener('mouseup', (e) => {
+    // Ignore if clicking on the reply button itself
+    if (e.target.closest('#replyFloatBtn')) return;
+    
     setTimeout(() => {
       const sel = window.getSelection();
       const text = sel ? sel.toString().trim() : '';
@@ -1365,7 +1368,8 @@ let replyData = null;
       btn.style.position = 'fixed';
       btn.style.left = (rect.left + rect.width / 2 - 16) + 'px';
       btn.style.top = (rect.top - 40) + 'px';
-      btn.onclick = () => {
+      btn.onclick = (clickEvent) => {
+        clickEvent.stopPropagation();
         replyData = text;
         const msgEl = e.target.closest('.message');
         showReplyPreview(text, msgEl);
