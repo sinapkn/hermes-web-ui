@@ -1390,18 +1390,23 @@ let replyData = null;
   });
 
   // Reposition reply button on scroll (keep it anchored to selected text)
-  document.addEventListener('scroll', () => {
+  function repositionReplyBtn() {
     if (replyBtn && replyBtn.style.display === 'flex' && replyBtn._selectionRange) {
       try {
         const rect = replyBtn._selectionRange.getBoundingClientRect();
         replyBtn.style.left = (rect.left + rect.width / 2 - 16) + 'px';
         replyBtn.style.top = (rect.top - 40) + 'px';
       } catch (e) {
-        // Range may be invalid after scroll
         replyBtn.style.display = 'none';
       }
     }
-  }, { passive: true });
+  }
+  
+  document.addEventListener('scroll', repositionReplyBtn, { passive: true });
+  const messagesContainer = document.getElementById('messagesContainer');
+  if (messagesContainer) {
+    messagesContainer.addEventListener('scroll', repositionReplyBtn, { passive: true });
+  }
 })();
 
 function cancelReply() {
