@@ -1028,7 +1028,7 @@ function copyCodeBlock(id) {
   const text = el.textContent;
   navigator.clipboard.writeText(text).then(() => {
     // Find the copy button for this code block
-    const btn = el.closest('.code-block')?.querySelector('.copy-code-btn');
+    const btn = el.closest('.code-block-wrapper')?.querySelector('.copy-code-btn');
     if (btn) {
       btn.textContent = 'Copied!';
       setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
@@ -1037,7 +1037,6 @@ function copyCodeBlock(id) {
 }
 
 function addCopyButtonToCodeBlock(pre) {
-  // If already has a copy button, skip
   if (pre.previousElementSibling?.classList?.contains('code-block-header')) return;
 
   const codeId = pre.id || ('code-' + Math.random().toString(36).substring(2, 10));
@@ -1045,8 +1044,21 @@ function addCopyButtonToCodeBlock(pre) {
 
   const header = document.createElement('div');
   header.className = 'code-block-header';
-  header.innerHTML = `<button class="copy-code-btn" onclick="copyCodeBlock('${codeId}')">Copy</button>`;
+  header.innerHTML = `<div class="code-block-actions"><button class="code-action-btn" onclick="copyCodeBlock('${codeId}')" title="Copy">Copy</button><button class="code-action-btn" onclick="editCodeBlock('${codeId}')" title="Edit">Edit</button></div>`;
   pre.parentNode.insertBefore(header, pre);
+}
+
+function editCodeBlock(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  const code = el.textContent;
+  const input = document.getElementById('chatInput');
+  if (input) {
+    input.value = code;
+    input.focus();
+    input.style.height = 'auto';
+    input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+  }
 }
 
 // ─── Time Formatting ──────────────────────────────────────────────────

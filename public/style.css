@@ -939,28 +939,36 @@ body::before {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 8px 16px;
-  background: rgba(255, 255, 255, 0.03);
+  padding: 6px 12px;
+  background: rgba(255, 255, 255, 0.04);
   border-bottom: 1px solid var(--glass-border);
   border-radius: var(--radius-md) var(--radius-md) 0 0;
   font-size: 12px;
   color: var(--text-muted);
+  direction: ltr;
 }
 
-.copy-btn {
+.code-block-actions {
+  display: flex;
+  gap: 6px;
+  margin-left: auto;
+}
+
+.code-action-btn {
   background: transparent;
   border: 1px solid var(--glass-border);
   border-radius: var(--radius-sm);
   color: var(--text-muted);
-  font-size: 12px;
-  padding: 3px 8px;
+  font-size: 11px;
+  padding: 2px 8px;
   cursor: pointer;
   transition: all var(--transition-fast);
   font-family: var(--font-main);
+  direction: ltr;
 }
 
-.copy-btn:hover {
-  background: rgba(255, 255, 255, 0.06);
+.code-action-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
   color: var(--text-primary);
 }
 
@@ -1416,6 +1424,26 @@ body::before {
 .code-block-wrapper {
   position: relative;
   margin: 12px 0;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--glass-border);
+  background: rgba(0, 0, 0, 0.2);
+}
+
+.code-block-wrapper pre {
+  margin: 0;
+  padding: 14px 16px;
+  overflow-x: auto;
+  font-size: 13px;
+  line-height: 1.5;
+  direction: ltr;
+  text-align: left;
+}
+
+.code-block-wrapper code {
+  font-family: 'Fira Code', 'Cascadia Code', 'JetBrains Mono', monospace;
+  font-size: 13px;
+  direction: ltr;
 }
 
 .code-lang {
