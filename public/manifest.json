@@ -9,7 +9,10 @@
   "orientation": "any",
   "dir": "rtl",
   "lang": "fa",
-  "categories": ["productivity", "utilities"],
+  "categories": [
+    "productivity",
+    "utilities"
+  ],
   "icons": [
     {
       "src": "/icon-192.png",
@@ -35,5 +38,6 @@
       "type": "image/png",
       "purpose": "maskable"
     }
-  ]
+  ],
+  "scope": "/"
 }
