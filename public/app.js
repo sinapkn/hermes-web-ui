@@ -13,6 +13,9 @@ if ('serviceWorker' in navigator) {
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
+  // Show install button in sidebar
+  const btn = document.getElementById('installBtn');
+  if (btn) btn.style.display = '';
 });
 
 // Show install banner after 5 seconds
@@ -1294,23 +1297,3 @@ document.addEventListener('click', (e) => {
   if (e.target.id === 'statusModal') closeStatus();
 });
 
-// ─── PWA Install ──────────────────────────────────────────────────
-async function installApp() {
-  if (deferredPrompt) {
-    deferredPrompt.prompt();
-    const { outcome } = await deferredPrompt.userChoice;
-    deferredPrompt = null;
-    return;
-  }
-  // Fallback instructions
-  const ua = navigator.userAgent;
-  let msg = '';
-  if (/android/i.test(ua) && /chrome/i.test(ua)) {
-    msg = 'در Chrome: منو (سه نقطه) → Install app';
-  } else if (/iphone|ipad/i.test(ua)) {
-    msg = 'در Safari: دکمه Share → Add to Home Screen';
-  } else {
-    msg = 'از منوی مرورگر گزینه Install app را بزنید';
-  }
-  alert(msg);
-}
