@@ -1394,8 +1394,23 @@ let replyData = null;
     if (replyBtn && replyBtn.style.display === 'flex' && replyBtn._selectionRange) {
       try {
         const rect = replyBtn._selectionRange.getBoundingClientRect();
-        replyBtn.style.left = (rect.left + rect.width / 2 - 16) + 'px';
-        replyBtn.style.top = (rect.top - 40) + 'px';
+        const left = rect.left + rect.width / 2 - 16;
+        const top = rect.top - 40;
+        
+        // Check if button would overlap with input-area
+        const inputArea = document.querySelector('.input-area');
+        if (inputArea) {
+          const inputRect = inputArea.getBoundingClientRect();
+          const btnBottom = top + 32; // button height
+          // If button would be over or near input area, hide it
+          if (btnBottom > inputRect.top - 10) {
+            replyBtn.style.display = 'none';
+            return;
+          }
+        }
+        
+        replyBtn.style.left = left + 'px';
+        replyBtn.style.top = top + 'px';
       } catch (e) {
         replyBtn.style.display = 'none';
       }
