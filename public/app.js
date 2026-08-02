@@ -1368,6 +1368,10 @@ let replyData = null;
       btn.style.position = 'fixed';
       btn.style.left = (rect.left + rect.width / 2 - 16) + 'px';
       btn.style.top = (rect.top - 40) + 'px';
+      
+      // Store range for scroll repositioning
+      btn._selectionRange = range;
+      
       btn.onclick = (clickEvent) => {
         clickEvent.stopPropagation();
         replyData = text;
@@ -1385,9 +1389,18 @@ let replyData = null;
     }
   });
 
-  // Hide reply button on scroll
+  // Reposition reply button on scroll (keep it anchored to selected text)
   document.addEventListener('scroll', () => {
-    if (replyBtn) replyBtn.style.display = 'none';
+    if (replyBtn && replyBtn.style.display === 'flex' && replyBtn._selectionRange) {
+      try {
+        const rect = replyBtn._selectionRange.getBoundingClientRect();
+        replyBtn.style.left = (rect.left + rect.width / 2 - 16) + 'px';
+        replyBtn.style.top = (rect.top - 40) + 'px';
+      } catch (e) {
+        // Range may be invalid after scroll
+        replyBtn.style.display = 'none';
+      }
+    }
   }, { passive: true });
 })();
 
