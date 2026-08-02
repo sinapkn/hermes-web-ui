@@ -966,7 +966,7 @@ function formatContent(content) {
     const langLabel = lang ? `<span class="code-lang">${lang}</span>` : '';
     const codeId = 'code-' + Math.random().toString(36).substring(2, 10);
     return `<div class="code-block-wrapper">
-      <div class="code-block-header">${langLabel}<button class="copy-code-btn" onclick="copyCodeBlock('${codeId}')">Copy</button></div>
+      <div class="code-block-header">${langLabel}<button class="code-action-btn" onclick="copyCodeBlock('${codeId}')">Copy</button></div>
       <pre id="${codeId}"><code>${code.trim()}</code></pre>
     </div>`;
   });
@@ -1018,6 +1018,8 @@ function formatContent(content) {
 
   // Clean up: remove <br> right before block elements
   html = html.replace(/<br>\s*(<ul|<h[2-4]|<blockquote|<hr|<div class="code-block-wrapper")/g, '$1');
+  // Remove <br> inside code-block-wrapper (breaks layout)
+  html = html.replace(/(<div class="code-block-wrapper">[\s\S]*?)<br>/g, '$1');
 
   return html;
 }
@@ -1028,7 +1030,7 @@ function copyCodeBlock(id) {
   const text = el.textContent;
   navigator.clipboard.writeText(text).then(() => {
     // Find the copy button for this code block
-    const btn = el.closest('.code-block-wrapper')?.querySelector('.copy-code-btn');
+    const btn = el.closest('.code-block-wrapper')?.querySelector('.code-action-btn');
     if (btn) {
       btn.textContent = 'Copied!';
       setTimeout(() => { btn.textContent = 'Copy'; }, 2000);
@@ -1037,14 +1039,15 @@ function copyCodeBlock(id) {
 }
 
 function addCopyButtonToCodeBlock(pre) {
-  if (pre.previousElementSibling?.classList?.contains('code-block-header')) return;
+  // Skip if parent already has a code-block-header
+  if (pre.parentNode && pre.parentNode.querySelector('.code-block-header')) return;
 
   const codeId = pre.id || ('code-' + Math.random().toString(36).substring(2, 10));
   if (!pre.id) pre.id = codeId;
 
   const header = document.createElement('div');
   header.className = 'code-block-header';
-  header.innerHTML = `<div class="code-block-actions"><button class="code-action-btn" onclick="copyCodeBlock('${codeId}')" title="Copy">Copy</button><button class="code-action-btn" onclick="editCodeBlock('${codeId}')" title="Edit">Edit</button></div>`;
+  header.innerHTML = '<div class="code-block-actions"><button class="code-action-btn" onclick="copyCodeBlock(\'' + codeId + '\')" title="Copy">Copy</button><button class="code-action-btn" onclick="editCodeBlock(\'' + codeId + '\')" title="Edit">Edit</button></div>';
   pre.parentNode.insertBefore(header, pre);
 }
 
