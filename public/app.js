@@ -719,6 +719,13 @@ async function sendMessage() {
   pendingAttachments = [];
   renderAttachmentPreview();
 
+  // Include reply context if present
+  let fullMessage = content;
+  if (replyData) {
+    fullMessage = '« ریپلای به: ' + replyData.substring(0, 200) + ' »\n\n' + content;
+    cancelReply();
+  }
+
   messageInput.value = '';
   messageInput.style.height = 'auto';
   sendBtn.disabled = true;
@@ -737,7 +744,7 @@ async function sendMessage() {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ message: content, sessionId: currentSessionId, attachments })
+      body: JSON.stringify({ message: fullMessage, sessionId: currentSessionId, attachments })
     });
 
     const reader = response.body.getReader();
@@ -1061,6 +1068,326 @@ function editCodeBlock(id) {
     input.focus();
     input.style.height = 'auto';
     input.style.height = Math.min(input.scrollHeight, 200) + 'px';
+  }
+}
+
+// ─── Time Formatting ──────────────────────────────────────────────────
+
+function formatTime(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr + (dateStr.endsWith('Z') ? '' : 'Z'));
+    return d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  } catch {
+    return '';
+  }
+}
+
+function formatDate(dateStr) {
+  if (!dateStr) return '';
+  try {
+    const d = new Date(dateStr + (dateStr.endsWith('Z') ? '' : 'Z'));
+    const now = new Date();
+    const diff = now - d;
+    if (diff < 60000) return 'Just now';
+    if (diff < 3600000) return Math.floor(diff / 60000) + 'm ago';
+    if (diff < 86400000) return Math.floor(diff / 3600000) + 'h ago';
+    return d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+  } catch {
+    return '';
+  }
+}
+
+function formatUptime(seconds) {
+  if (!seconds) return '0';
+  const h = Math.floor(seconds / 3600);
+  const m = Math.floor((seconds % 3600) / 60);
+  if (h > 0) return `${h}h ${m}m`;
+  return `${m}m`;
+}
+
+// ─── Settings Modal ───────────────────────────────────────────────
+async function openSettings() {
+  const modal = $('#settingsModal');
+  const body = $('#settingsBody');
+  modal.classList.remove('hidden');
+  
+  try {
+    const [health, config] = await Promise.all([
+      api('/api/health'),
+      api('/api/config')
+    ]);
+    
+    let toolsHtml = '';
+    if (config.tools && config.tools.length) {
+      toolsHtml = `
+        <div class="settings-section">
+          <h3>Active Tools</h3>
+          <div class="tools-grid">
+            ${config.tools.map(t => `
+              <div class="settings-row">
+                <span class="settings-label">${t.icon} ${t.label}</span>
+                <span class="settings-badge enabled">ON</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+    
+    body.innerHTML = `
+      <div class="settings-section">
+        <h3>Model</h3>
+        <div class="settings-input-group">
+          <label>Model Name</label>
+          <input type="text" id="settingModel" value="${config.model}" class="settings-input" placeholder="e.g. claude-sonnet-4, gpt-4o...">
+        </div>
+        <div class="settings-input-group">
+          <label>Provider</label>
+          <input type="text" id="settingProvider" value="${config.provider}" class="settings-input" placeholder="e.g. openrouter, anthropic...">
+        </div>
+        <div class="settings-input-group">
+          <label>Base URL</label>
+          <input type="text" id="settingBaseUrl" value="${config.baseUrl || ''}" class="settings-input" placeholder="API endpoint URL">
+        </div>
+        <button onclick="saveSettings()" class="settings-save-btn">Save</button>
+        <div id="settingsStatus" class="settings-status"></div>
+      </div>
+      ${toolsHtml}
+      <div class="settings-section">
+        <h3>System</h3>
+        <div class="settings-row">
+          <span class="settings-label">Mode</span>
+          <span class="settings-badge ${config.mode === 'hermes-cli' ? 'enabled' : 'disabled'}">${config.mode}</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Status</span>
+          <span class="settings-badge ${health.status === 'ok' ? 'enabled' : 'disabled'}">${health.status}</span>
+        </div>
+      </div>
+    `;
+  } catch (e) {
+    body.innerHTML = '<div class="loading-state">Could not load settings</div>';
+  }
+}
+
+async function saveSettings() {
+  const status = $('#settingsStatus');
+  const model = $('#settingModel').value.trim();
+  const provider = $('#settingProvider').value.trim();
+  const baseUrl = $('#settingBaseUrl').value.trim();
+  
+  if (!model) {
+    status.innerHTML = '<span class="settings-badge disabled">Model is required</span>';
+    return;
+  }
+  
+  status.innerHTML = '<span class="settings-badge enabled">Saving...</span>';
+  
+  try {
+    const res = await fetch('/api/config', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ model, provider, baseUrl })
+    });
+    const data = await res.json();
+    
+    if (data.ok) {
+      status.innerHTML = '<span class="settings-badge enabled">Saved! Restart server to apply.</span>';
+      // Update UI immediately
+      const brandText = $('.brand-text');
+      const h1 = $('.welcome-screen h1');
+      const title = document.title;
+      const displayModel = model.split('/').pop();
+      if (brandText) brandText.textContent = displayModel;
+      if (h1) h1.textContent = displayModel;
+      document.title = displayModel + ' AI';
+    } else {
+      status.innerHTML = `<span class="settings-badge disabled">Error: ${data.error}</span>`;
+    }
+  } catch (e) {
+    status.innerHTML = `<span class="settings-badge disabled">Error: ${e.message}</span>`;
+  }
+}
+
+function closeSettings() {
+  $('#settingsModal').classList.add('hidden');
+}
+
+// Close modal on outside click
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'settingsModal') closeSettings();
+});
+
+// ─── Memory Modal ────────────────────────────────────────────────
+async function openMemory() {
+  const modal = $('#memoryModal');
+  const body = $('#memoryBody');
+  modal.classList.remove('hidden');
+  body.innerHTML = '<div class="loading-state">Loading memories...</div>';
+  
+  try {
+    const data = await api('/api/memory');
+    
+    if (!data.memories || !data.memories.length) {
+      body.innerHTML = '<div class="loading-state">No memories found</div>';
+      return;
+    }
+    
+    body.innerHTML = data.memories.map(m => `
+      <div class="memory-card">
+        <div class="memory-card-header">
+          <span class="memory-card-name">${m.name}</span>
+          <span class="memory-card-size">${Math.round(m.size / 1024 * 10) / 10}KB</span>
+        </div>
+        <pre class="memory-card-content">${escapeHtml(m.content)}</pre>
+      </div>
+    `).join('');
+  } catch (e) {
+    body.innerHTML = '<div class="loading-state">Could not load memories</div>';
+  }
+}
+
+function closeMemory() {
+  $('#memoryModal').classList.add('hidden');
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'memoryModal') closeMemory();
+});
+
+// ─── Status Modal ────────────────────────────────────────────────
+async function openStatus() {
+  const modal = $('#statusModal');
+  const body = $('#statusBody');
+  modal.classList.remove('hidden');
+  body.innerHTML = '<div class="loading-state">Loading status...</div>';
+  
+  try {
+    const [health, config] = await Promise.all([
+      api('/api/health'),
+      api('/api/config')
+    ]);
+    
+    body.innerHTML = `
+      <div class="settings-section">
+        <h3>Server</h3>
+        <div class="settings-row">
+          <span class="settings-label">Status</span>
+          <span class="settings-badge ${health.status === 'ok' ? 'enabled' : 'disabled'}">${health.status === 'ok' ? 'Online' : 'Offline'}</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Mode</span>
+          <span class="settings-badge ${config.mode === 'hermes-cli' ? 'enabled' : 'disabled'}">${config.mode}</span>
+        </div>
+      </div>
+      <div class="settings-section">
+        <h3>Model</h3>
+        <div class="settings-row">
+          <span class="settings-label">Name</span>
+          <span class="settings-value">${config.model}</span>
+        </div>
+        <div class="settings-row">
+          <span class="settings-label">Provider</span>
+          <span class="settings-value">${config.provider}</span>
+        </div>
+      </div>
+      ${config.tools && config.tools.length ? `
+      <div class="settings-section">
+        <h3>Tools (${config.tools.length})</h3>
+        <div class="tools-grid">
+          ${config.tools.map(t => `
+            <div class="settings-row">
+              <span class="settings-label">${t.icon} ${t.label}</span>
+              <span class="settings-badge enabled">ON</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+    `;
+  } catch (e) {
+    body.innerHTML = '<div class="loading-state">Could not load status</div>';
+  }
+}
+
+function closeStatus() {
+  $('#statusModal').classList.add('hidden');
+}
+
+document.addEventListener('click', (e) => {
+  if (e.target.id === 'statusModal') closeStatus();
+});
+
+
+// ─── Text Selection Reply ───────────────────────────────────────────
+let replyData = null;
+
+(function() {
+  let replyBtn = null;
+
+  function createReplyBtn() {
+    if (replyBtn) return replyBtn;
+    replyBtn = document.createElement('div');
+    replyBtn.id = 'replyFloatBtn';
+    replyBtn.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg>';
+    replyBtn.title = 'Reply to selection';
+    document.body.appendChild(replyBtn);
+    return replyBtn;
+  }
+
+  function showReplyPreview(text, msgEl) {
+    const preview = document.getElementById('replyPreview');
+    if (!preview) return;
+    const truncated = text.length > 200 ? text.substring(0, 200) + '...' : text;
+    const escaped = truncated.replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    preview.innerHTML = '<div class="reply-preview-content"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 14 4 9 9 4"/><path d="M20 20v-7a4 4 0 0 0-4-4H4"/></svg><span class="reply-preview-text">' + escaped + '</span><button class="reply-preview-close" onclick="cancelReply()">&times;</button></div>';
+    preview.classList.remove('hidden');
+  }
+
+  document.addEventListener('mouseup', (e) => {
+    setTimeout(() => {
+      const sel = window.getSelection();
+      const text = sel ? sel.toString().trim() : '';
+
+      if (!text || text.length < 2) {
+        if (replyBtn) replyBtn.style.display = 'none';
+        return;
+      }
+
+      const tag = (e.target.tagName || '').toLowerCase();
+      if (tag === 'input' || tag === 'textarea') return;
+
+      const range = sel.getRangeAt(0);
+      const rect = range.getBoundingClientRect();
+      const btn = createReplyBtn();
+      btn.style.display = 'flex';
+      btn.style.position = 'fixed';
+      btn.style.left = (rect.left + rect.width / 2 - 16) + 'px';
+      btn.style.top = (rect.top - 40) + 'px';
+      btn.onclick = () => {
+        replyData = text;
+        const msgEl = e.target.closest('.message');
+        showReplyPreview(text, msgEl);
+        btn.style.display = 'none';
+        sel.removeAllRanges();
+      };
+    }, 10);
+  });
+
+  document.addEventListener('mousedown', (e) => {
+    if (replyBtn && !e.target.closest('#replyFloatBtn')) {
+      replyBtn.style.display = 'none';
+    }
+  });
+})();
+
+function cancelReply() {
+  replyData = null;
+  const preview = document.getElementById('replyPreview');
+  if (preview) {
+    preview.classList.add('hidden');
+    preview.innerHTML = '';
   }
 }
 
