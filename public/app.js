@@ -1384,6 +1384,11 @@ let replyData = null;
       replyBtn.style.display = 'none';
     }
   });
+
+  // Hide reply button on scroll
+  document.addEventListener('scroll', () => {
+    if (replyBtn) replyBtn.style.display = 'none';
+  }, { passive: true });
 })();
 
 function cancelReply() {
