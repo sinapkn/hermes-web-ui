@@ -6,7 +6,7 @@
 let deferredPrompt = null;
 
 if ('serviceWorker' in navigator) {
-  navigator.serviceWorker.register('/sw.js').catch(() => {});
+  navigator.serviceWorker.register('/sw.js?v=' + Date.now()).catch(() => {});
 }
 
 // PWA install prompt
