@@ -1295,13 +1295,6 @@ document.addEventListener('click', (e) => {
 });
 
 // ─── PWA Install ──────────────────────────────────────────────────
-let deferredPrompt = null;
-
-window.addEventListener('beforeinstallprompt', (e) => {
-  e.preventDefault();
-  deferredPrompt = e;
-});
-
 async function installApp() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
