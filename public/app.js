@@ -966,7 +966,7 @@ function formatContent(content) {
     const langLabel = lang ? `<span class="code-lang">${lang}</span>` : '';
     const codeId = 'code-' + Math.random().toString(36).substring(2, 10);
     return `<div class="code-block-wrapper">
-      <div class="code-block-header">${langLabel}<button class="code-action-btn" onclick="copyCodeBlock('${codeId}')">Copy</button></div>
+      <div class="code-block-header">${langLabel}<div class="code-block-actions"><button class="code-action-btn" onclick="copyCodeBlock('${codeId}')" title="Copy">Copy</button><button class="code-action-btn" onclick="editCodeBlock('${codeId}')" title="Edit">Edit</button></div></div>
       <pre id="${codeId}"><code>${code.trim()}</code></pre>
     </div>`;
   });
