@@ -474,6 +474,48 @@ app.post('/api/chat', async (req, res) => {
   }
 });
 
+// ─── Bale bridge supervisor ────────────────────────────────────────
+const { spawn } = require('child_process');
+
+function getBaleTokenFromEnv() {
+  // Try process.env first, then fall back to /data/.hermes/.env
+  if (process.env.BALE_TOKEN) return process.env.BALE_TOKEN;
+  try {
+    const envFile = fs.readFileSync(path.join(process.env.HERMES_DIR || '/data/.hermes', '.env'), 'utf-8');
+    const m = envFile.match(/^BALE_TOKEN=(.*)$/mi);
+    return m ? m[1].trim().replace(/^[\"']|[\"']$/g, '') : '';
+  } catch { return ''; }
+}
+
+function startBaleBridge() {
+  // Only start if a token is configured
+  const token = getBaleTokenFromEnv();
+  if (!token || token.includes('***')) {
+    console.log('ℹ️ Bale bridge: no BALE_TOKEN, skipping');
+    return;
+  }
+  // Pass token to the child via env
+  const child = spawn('python3', [path.join(__dirname, 'bale_bridge.py')], {
+    stdio: ['ignore', 'inherit', 'inherit'],
+    env: { ...process.env, BALE_TOKEN: token },
+    detached: false
+  });
+  child.on('exit', (code, signal) => {
+    console.log(`⚠️ Bale bridge exited (${code}/${signal}), restarting in 2s...`);
+    setTimeout(startBaleBridge, 2000);
+  });
+  child.on('error', (err) => {
+    console.error('❌ Bale bridge spawn error:', err.message);
+    setTimeout(startBaleBridge, 5000);
+  });
+  console.log('🚀 Bale bridge supervisor started');
+}
+
+// Start it (non-blocking)
+if (require.main === module) {
+  startBaleBridge();
+}
+
 // ─── Static files ──────────────────────────────────────────────────
 app.use(express.static(path.join(__dirname, 'public')));
 
