@@ -1869,6 +1869,7 @@ body::before {
 /* ═══ REPLY PREVIEW (ChatGPT/Telegram style) ══════════════════════ */
 
 .reply-preview {
+  display: block !important;
   padding: 10px 14px;
   background: rgba(124, 92, 255, 0.06);
   border: 1px solid rgba(124, 92, 255, 0.15);
@@ -1876,9 +1877,13 @@ body::before {
   margin: 16px 16px 0;
   animation: replySlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
   position: relative;
+  flex-shrink: 0;
+  z-index: 50;
 }
 
-.reply-preview.hidden { display: none; }
+.reply-preview.hidden { 
+  display: none !important; 
+}
 
 .reply-preview-content {
   display: flex;
